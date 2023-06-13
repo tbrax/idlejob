@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html>
-<body>
 
-<h2>JavaScript in Body</h2>
+<html>
+    <head>
+        <!-- <script type="module" src="js/item.js"></script> -->
+        <!-- <script type="module" src="./js/main.js">
+            main();
+        </script> -->
+    </head>
+      
+<body>
+    <script type="module">
+        import {main} from './js/main.js';  
+        main();
+    </script>
+    <!-- <script type="module">
+        import {welcome} from './welcome.js';  
+        document.body.innerHTML = welcome('W3Docs');
+    </script> -->
 
 <p id="demo"></p>
-
-<script src="js/main.js"></script>
 
 </body>
 </html> 

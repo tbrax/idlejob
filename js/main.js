@@ -1,13 +1,9 @@
+import {welcome} from './welcome.js';  
+import {Item} from './item.js';  
 
-import {Item} from '/item.js';
-
-
-function main () {
-
-    const i = Item('Test SCript')
-
+export function main () {
+    const i = new Item('Cheese')
     console.log(i.getName())
+    console.log(welcome('test'))
     document.getElementById("demo").innerHTML = "Test Script";
 }
-
-main();
