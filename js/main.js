@@ -9,7 +9,7 @@ function gameLoop () {
 const c = new Character();
 
 function setupGame () {
-    c.im.refreshItems();
+    c.displayItems();
 }
 
 export function main () {

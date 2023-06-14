@@ -6,7 +6,7 @@ export class Item {
       this.value = 0;
       this.max = 1;
       this.useMax = false; 
-      this.gain = 1;
+      this.gain = 0;
       this.maxgain = 0;
       this.tempgain = 0;
       this.tempmaxgain = 0;
@@ -17,7 +17,7 @@ export class Item {
     }
 
     getDisplayNumberText () {
-      return `${this.value}`;
+      return `${this.value.toFixed(1)}`;
     }
 
     displayNumber () {
@@ -26,6 +26,10 @@ export class Item {
 
     displayText () {
       this.displayNumber();
+    }
+
+    setDisplayName (name) {
+      this.displayname = name
     }
 
     getDisplayName () {
@@ -91,7 +95,7 @@ export class Item {
     }
 
     gainValue (value) {
-      const gain = this.getValue() + value
+      const gain = this.getValue() + value;
       this.setValue(gain);
     }
 

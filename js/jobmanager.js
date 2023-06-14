@@ -1,6 +1,5 @@
-import { ItemBonus } from './itembonus.js';
 export class JobManager {
-    constructor(name) {
+    constructor() {
       this.jobs = [];
     }
   }
