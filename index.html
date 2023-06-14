@@ -6,12 +6,29 @@
         <!-- <script type="module" src="./js/main.js">
             main();
         </script> -->
+        <link rel="stylesheet" href="style.css">
+        <script src="./js/jquery-3.7.0.min.js"></script>
+        <script>
+            $(function() {
+               $("#includeItemDisplay").load("./pages/itemdisplay.html");
+            });
+         </script>
     </head>
       
 <body>
+    <!-- <div id="includeItemDisplay"></div> -->
+    <div class="gridWrapper">
+        <div class="gridone" id="itemdisplay"></div>
+        <div class="gridtwo" id="actiondisplay">
+            Actions go here
+        </div>
+    </div>
+      
     <script type="module">
-        import {main} from './js/main.js';  
-        main();
+        import {main} from './js/main.js';
+        $(document).ready(function() {
+            main();
+        });
     </script>
     <!-- <script type="module">
         import {welcome} from './welcome.js';  
