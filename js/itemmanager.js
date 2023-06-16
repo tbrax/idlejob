@@ -6,6 +6,35 @@ export class ItemManager {
     this.initialItems();
   }
 
+  initialItems () {
+    const i0 = this.createItem('cash', 'Cash');
+    i0.addTag('Cash');
+    i0.doUnlock();
+    this.addItem(i0);
+
+    const i1 = this.createItem('trash', 'Trash');
+    i1.addTag('Garbage');
+    this.addItem(i1);
+
+    const i2 = this.createItem('paper', 'Paper');
+    this.addItem(i2);
+
+    const i3 = this.createItem('cardboard', 'Cardboard');
+    this.addItem(i3);
+
+    const i4 = this.createItem('glass', 'Glass');
+    this.addItem(i4);
+
+    const i5 = this.createItem('plastic', 'Plastic');
+    this.addItem(i5);
+  }
+
+  getItemValue (name) {
+    const item = this.findItemByName(name);
+    const itemvalue = item.getValue();
+    return itemvalue;
+  }
+
   itemElement (item) {
     const newDivParent = document.createElement("div");
     newDivParent.classList.add("flexshow");
@@ -23,6 +52,34 @@ export class ItemManager {
     newDivParent.appendChild(nameDiv);
     newDivParent.appendChild(numDiv);
     return newDivParent;
+  }
+
+  checkHaveResult (result) {
+    if (result == null) {
+      return true;
+    }
+    const values = result.getValues()
+    for (let i = 0; i < values.length; i++) {
+      const val = values[i];
+      if (val.type === 'itemvalue') {
+        const item = this.findItemByName(val.name)
+        if (item == null) {
+          continue;
+        }
+        if (item.getValue() < Math.abs(val.value)) {
+          return false
+        }
+      }
+    }
+    return true
+  }
+
+  getDisplayName (name) {
+    const i = this.findItemByName(name)
+    if (i == null) {
+      return ''
+    }
+    return i.getDisplayName();
   }
 
   findItemByName (name) {
@@ -47,8 +104,11 @@ export class ItemManager {
   
   addItems () {
       for (let i = 0; i < this.items.length; i++) {
+        const item = this.items[i];
+        if (item.isUnlocked()) {
           const newItem = this.itemElement(this.items[i]);
           $("#itemdisplay").append(newItem);
+        }
       } 
   }
 
@@ -91,23 +151,26 @@ export class ItemManager {
     i.setDisplayName(display);
     return i;
   }
-
-  initialItems () {
-    const i0 = this.createItem('cash', 'Cash');
-    i0.addTag('Cash');
-    this.addItem(i0);
-
-    const i1 = this.createItem('trash', 'Trash');
-    i1.addTag('Garbage');
-    this.addItem(i1);
-
-  }
   
   calcTempValues () {
     
   }
 
+  checkUnlocks () {
+    let madeUnlock = false;
+    for (let i = 0; i < this.items.length; i++) {
+      const u = this.items[i].checkUnlock();
+      if (u) {
+        madeUnlock = true;
+      }
+    } 
+    if (madeUnlock) {
+      this.refreshItems();
+    }
+  }
+
   tickGain (time) {
+    this.checkUnlocks();
     for (let i = 0; i < this.items.length; i++) {
       const item = this.items[i];
       item.tickGain(time);

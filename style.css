@@ -30,15 +30,17 @@ body {
 
     .gridone {
         grid-column: 1;
-        grid-row: 1;
-        border: solid yellow;
+        grid-row: 1 / span 2;
+        border: solid blue;
         padding: 5px;
         margin: 5px;
+        height: 250px;
+        overflow: auto;
     }
     .gridtwo {
         grid-column: 2;
         grid-row: 1;
-        border: solid green;
+        border: solid blue;
         padding: 5px;
         margin: 5px;
     }
@@ -49,3 +51,109 @@ body {
         padding: 5px;
         margin: 5px;
     }
+    .gridfour {
+        grid-column: 1;
+        grid-row: 4;
+        border: solid blue;
+        padding: 5px;
+        margin: 5px;
+    }
+
+    .gridfive {
+        grid-column: 2;
+        grid-row: 2;
+        border: solid blue;
+        padding: 5px;
+        margin: 5px;
+        height: 100px;
+        overflow: auto;
+    }
+
+    .gridsix {
+        grid-column: 3;
+        grid-row: 2;
+        border: solid blue;
+        padding: 5px;
+        margin: 5px;
+    }
+
+    .gridseven {
+        grid-column: 1;
+        grid-row: 3;
+        border: solid blue;
+        padding: 5px;
+        margin: 5px;
+    }
+
+    .loadbargrid {
+        display: grid;
+        border: solid white;
+        padding: 5px;
+        padding-left: 10px;
+        height: 40px;
+        text-align: left;
+    }
+
+    .loadbartext {
+        grid-column: 1;
+        grid-row: 1;
+        width: 300px;
+    }
+
+    .loadbarhovertext {
+        position: relative;   
+        left: 50%;
+        top: -50%;
+    }
+
+    .loadbarbar {
+        grid-column: 2;
+        grid-row: 1;
+        width: 200px;
+    }
+
+    .fullbar {
+        width: 100%;
+        background-color: #ddd;
+    }
+      
+    .loadbar {
+        width: 0%;
+        height: 30px;
+        background-color: #04AA6D;
+        padding: 2px;
+    }
+
+    .tooltipResult {
+        background-color: white;
+        margin: 5px;
+        color: black;
+        padding: 5px;
+    }
+
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+      }
+      
+      /* Tooltip text */
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: black;
+        color: #fff;
+        text-align: left;
+        padding: 10px;
+        border-radius: 6px;
+        top: -5px;
+        left: 105%; 
+        /* Position the tooltip text - see examples below! */
+        position: absolute;
+        z-index: 1;
+      }
+      
+      /* Show the tooltip text when you mouse over the tooltip container */
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+      }

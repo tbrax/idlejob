@@ -14,6 +14,26 @@ export class Item {
       this.maxgainbonus = 0;
       this.holdbonus = [];
       this.tags = [];
+      this.unlocked = false;
+    }
+
+    isUnlocked () {
+      return this.unlocked;
+    }
+
+    doUnlock () {
+      this.unlocked = true;
+    }
+
+    checkUnlock () {
+      if (!this.isUnlocked())
+      {
+        if (this.value > 0) {
+          this.doUnlock();
+          return true;
+        }
+      }
+      return false;
     }
 
     getDisplayNumberText () {
@@ -25,7 +45,9 @@ export class Item {
     }
 
     displayText () {
-      this.displayNumber();
+      if (this.isUnlocked()) {
+        this.displayNumber();
+      }
     }
 
     setDisplayName (name) {
