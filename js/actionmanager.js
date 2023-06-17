@@ -1,5 +1,6 @@
 import { Action } from './action.js';
 import { Result } from './result.js';
+import { Criteria } from './criteria.js';
 export class ActionManager {
     constructor(c) {
       this.actions = [];
@@ -10,32 +11,88 @@ export class ActionManager {
     }
 
     initialActions () {
-      const a = this.createAction('beg', 'Beg');
+      this.addAction1();
+      this.addAction2();
+      this.addAction3();
+      this.addAction4();
+      this.addAction5();
+      this.addAction6();
+      this.addAction7();
+      // a4 = this.createAction('powerwash', 'Power Wash');
+      // a4.setResultValue("cash", "itemvalue", 1);
+    }
+
+    addAction7 () { 
+      const a = this.createAction('powerwash', 'Power Wash', 'For tough stains');
+      a.setResultValue("cash", "itemvalue", 10);
+      a.setResultValue("clean", "skillexp", 1);
+      a.setResultValue("liquid", "skillexp", 1);
+      a.setCostValue("water", "itemvalue", -1);
+      a.setCostValue("soap", "itemvalue", -1);
+      this.addAction(a);
+    }
+
+    addAction6 () { 
+      const a = this.createAction('fillwater', 'Fill Water', 'Stay Hydrated');
+      a.setResultValue("water", "itemvalue", 1.0);
+      a.setResultValue("liquid", "skillexp", 0.1);
+      this.addAction(a);
+    }
+
+    addAction1 () { 
+      const a = this.createAction('panhandle', 'Panhandle', 'You do what you have to.');
       a.setResultValue("cash", "itemvalue", 0.5);
       a.setResultValue("speech", "skillexp", 0.1);
+      a.setResultValue("hobo", "jobexp", 1);
       this.addAction(a);
+    }
 
-      const a0 = this.createAction('streetperform', 'Street Perform');
+    addAction2 () { 
+      const a0 = this.createAction('streetperform', 'Street Perform', '');
       a0.setResultValue("cash", "itemvalue", 10);
       a0.setResultValue("streetsmarts", "skillexp", 10);
       a0.setResultValue("coordination", "skillexp", 10);
+      // const a01 = new Criteria();
+      // a01.addScaleName('hobo', 'joblvl', 1);
+      // a0.setResultValueCriteria("speed", "speed", 1, null);
       this.addAction(a0);
-      
-      const a3 = this.createAction('pickuptrash', 'Pick Up Trash');
-      a3.setResultValue("trash", "itemvalue", 1);
-      a3.setResultValue("hobo", "jobexp", 1);
-      a3.setUseTime(1);
-      this.addAction(a3);
+    }
 
-      const a2 = this.createAction('digtrash', 'Seperate Trash');
-      // a2.setResultValue("cash", "itemvalue", 2);
+    addAction3 () { 
+      const a3 = this.createAction('pickuptrash', 'Pick Up Trash', '');
+      a3.setResultValue("hobo", "jobexp", 1);
+      // a3.setUseTime(0.1);
+      const cr3 = new Criteria();
+      a3.setResultValueCriteria("trash", "itemvalue", 1, cr3);
+      const cr31 = new Criteria();
+      cr31.addItemName('chance', 'chance', 0.1);
+      cr31.addScaleAdd('hobo', 'joblvl', 0.1, 'chance');
+      a3.setResultValueCriteria("trash", "itemvalue", 1, cr31);
+      this.addAction(a3);
+    }
+
+    addAction4 () {
+      const a2 = this.createAction('digtrash', 'Seperate Trash', '');
       a2.setResultValueChance("paper", "itemvalue", 1, 0.5);
       a2.setResultValueChance("plastic", "itemvalue", 1, 0.5);
       a2.setResultValueChance("cardboard", "itemvalue", 1, 0.5);
+      a2.setResultValueChance("cash", "itemvalue", 1, 0.1);
       a2.setCostValue("trash", "itemvalue", -1);
+      a2.setResultValue("hobo", "jobexp", 2);
+      a2.setResultValue("coordination", "skillexp", 1);
       a2.setUnlockValue("trash", "itemvalue", 1, ">=");
       a2.setUnlockValue("hobo", "joblevel", 1, ">=");
       this.addAction(a2);
+    }
+
+    addAction5 () {
+      const a4 = this.createAction('cleanplate', 'Clean Plate', '');
+      a4.setUnlockValue("dishwasher", "joblevel", 1, ">=");
+      a4.setResultValue("dishwasher", "jobexp", 1);
+      const a4c = new Criteria();
+      a4c.addScaleName('dishwasher', 'joblvl', 0.1);
+      a4.setResultValueCriteria("cash", "itemvalue", 1, a4c);
+      this.addAction(a4);
     }
 
     addMessage(message) {
@@ -50,7 +107,7 @@ export class ActionManager {
       return this.character
     }
 
-    createAction (name, display) {
+    createAction (name, display, desc) {
       const a = new Action(name, this);
       a.setDisplayName(display);
       return a;
@@ -94,49 +151,12 @@ export class ActionManager {
       }
     }
 
-    performSingleResult (result, thisclass) {
-      const type = result.type;
-      if (type == "itemvalue") {
-        const im = thisclass.getItemManager();
-        im.itemAction(result)
-      } else if (type == "skillexp") {
-        const sm = thisclass.getSkillManager();
-        sm.itemAction(result)
-      } else if (type == "jobexp") {
-        const jm = thisclass.getJobManager();
-        jm.itemAction(result);
-      }
-    }
-
-    luckBasedChance (chance) {
-      if (chance >= 1) {
-        return true;
-      }
-      return this.getCharacter().luckBasedChance(chance);
-    }
-
-    performResultList (result, mult, thisclass) {
-      const rs = result.getValues();
-      for (let i = 0; i < rs.length; i++) {
-        const rsm = rs[i]
-        const chance = rsm.chance;
-        if (thisclass.luckBasedChance(chance)) {
-          const newRm = {name:rsm.name, type:rsm.type, value:rsm.value * mult}
-          thisclass.performSingleResult(newRm, thisclass)
-        }
-      }
-    }
-
-    performResult (result, thisclass) {
+    performResult (result) {
       if (result == null) {
         return
       }
-      let rm = result.getMult();
-      if (result.isCost()) {
-        rm = 1;
-      }
-
-      this.performResultList(result, rm, thisclass);
+      result.performResultList(this.getCharacter());
+      // this.performResultList(result, rm, this);
     }
 
     refreshCharacterText() {
@@ -287,21 +307,21 @@ export class ActionManager {
       this.checkAllUnlocks(this.getCharacter());
     }
 
-    addUseAction(action, thisclass) {
-      thisclass.usingactions.push(action);
+    addUseAction(action) {
+      this.usingactions.push(action);
     }
 
-    performAction (name, thisclass) {
-      const a = thisclass.findActionByName(name);
+    performAction (name) {
+      const a = this.findActionByName(name);
       const canDo = a.checkDoAction();
       if (canDo) {
-        thisclass.performResult(a.getCost(), thisclass);
+        this.performResult(a.getCost(), this);
         if (a.hasUseTime()) {
-          thisclass.addUseAction(a, thisclass)
+          this.addUseAction(a, this)
         } else {
-          thisclass.performResult(a.getResult(), thisclass);
+          this.performResult(a.getResult(), this);
         }
-        thisclass.character.tickRefresh();
+        this.character.tickRefresh();
       }
     }
 
@@ -309,8 +329,8 @@ export class ActionManager {
       this.actionqueue.push(name)
     }
 
-    addQueueItemName(name, thisclass) {
-      thisclass.pushQueueItem(name);
+    addQueueItemName(name) {
+      this.pushQueueItem(name);
     }
 
     alreadyDoingAction (name) {
@@ -322,49 +342,29 @@ export class ActionManager {
       return false;
     }
 
-    checkPerformAction (name, thisclass) {
+    checkPerformAction (name) {
       const c = this.currentActionLength();
       const m = this.getMaxActions();
       const alreadyIn = this.alreadyDoingAction(name);
-      const a = thisclass.findActionByName(name);
+      const a = this.findActionByName(name);
       const canDo = a.checkDoAction();
       if ((c < m) && !alreadyIn && canDo) {
-        thisclass.performAction(name, thisclass);
+        this.performAction(name);
       } else {
-        thisclass.addQueueItemName(name, thisclass)
+        this.addQueueItemName(name)
       }
     }
 
     createHandler (name, thisclass) {
         return function () {
-          thisclass.checkPerformAction(name, thisclass);
+          thisclass.checkPerformAction(name);
         };
-    }
-
-    getResultDisplayName (result) {
-      if (result.type == "itemvalue") {
-        const im = this.getItemManager()
-        const chance = result.chance
-        if (chance >= 1) {
-          return `${Math.abs(result.value)} ${im.getDisplayName(result.name)}`;
-        } else {
-          return `${Math.abs(result.value)} ${im.getDisplayName(result.name)} (${(chance * 100).toFixed(0)}%)`;
-        }
-      } else if (result.type == "skillexp") {
-        const m = this.getSkillManager()
-        return `${Math.abs(result.value)} ${m.getDisplayName(result.name)} SXP`;
-      } else if (result.type == "jobexp") {
-        const m = this.getJobManager()
-        return `${Math.abs(result.value)} ${m.getDisplayName(result.name)} JXP`;
-      }
-      return `${Math.abs(result.value)} ${result.name}`;
     }
 
     toolTipElement (action) {
       const toolTipDiv = document.createElement("span");
       toolTipDiv.classList.add("tooltiptext");
-      toolTipDiv.innerHTML = action.getDisplayName();
-
+      toolTipDiv.innerHTML = action.getToolTipName();
       const cost = action.getCost();
       if (cost !== null) {
         const costList = cost.getValues();
@@ -379,7 +379,7 @@ export class ActionManager {
           for (let i = 0; i < costList.length; i++) {
             const rs = costList[i];
             const rsDiv = document.createElement("li");
-            rsDiv.innerHTML = this.getResultDisplayName(rs);
+            rsDiv.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
             listEle.appendChild(rsDiv);
           }
         }
@@ -394,47 +394,78 @@ export class ActionManager {
           resultsDiv.classList.add("tooltipResult");
           const listEle = document.createElement("ul");
           resultsDiv.appendChild(listEle);
-
           toolTipDiv.appendChild(resultsDiv);
+
           for (let i = 0; i < resultList.length; i++) {
             const rs = resultList[i];
             const rsDiv = document.createElement("li");
-            rsDiv.innerHTML = this.getResultDisplayName(rs);
+            rsDiv.innerHTML = result.getResultRowDisplayName(i, this.getCharacter());
             listEle.appendChild(rsDiv);
           }
         }
       } 
-
       return toolTipDiv
     }
 
+    recalculateTooltips () {
+      for (let i = 0; i < this.actions.length; i++) {
+        const action = this.actions[i];
+        if (action.isUnlocked()) {
+          const actionName = 'actionname' + action.getName();
+          const nameDiv = document.getElementById(actionName);
+
+          // const toolTipDiv = this.toolTipElement(action)
+          // nameDiv.appendChild(toolTipDiv);
+        }
+      } 
+    }
+  
+    hoverdiv(e, divid){
+      var left  = e.clientX  + "px";
+      var top  = e.clientY  + "px";       
+      var div = document.getElementById(divid);     
+      div.style.left = left;
+      div.style.top = top;      
+      $("#"+divid).toggle();
+      return false;
+    }
+
     actionElement (action) {
-      const newDivParent = document.createElement("div");
+      const newDivParent = document.createElement("span");
       const nameDiv = document.createElement("div");  
       nameDiv.id = 'actionname' + action.getName();
       const buttonDiv = document.createElement("button");
       buttonDiv.innerHTML = action.getDisplayName(); 
       buttonDiv.onclick = this.createHandler(action.getName(), this);
+      buttonDiv.addEventListener('mouseover', e => {
+        this.hoverdiv(e, 'tooltipdiv')
+      })
+
+      buttonDiv.addEventListener('mouseleave', e => {
+        this.hoverdiv(e, 'tooltipdiv')
+      })
 
       nameDiv.classList.add("tooltip");
+      // const toolTipDiv = this.toolTipElement(action)
+      // nameDiv.appendChild(toolTipDiv);
 
-      const toolTipDiv = this.toolTipElement(action)
-
-      nameDiv.appendChild(toolTipDiv);
       nameDiv.appendChild(buttonDiv);
       newDivParent.appendChild(nameDiv);
       return newDivParent;
   }
 
     addActions () {
-        for (let i = 0; i < this.actions.length; i++) {
-          const action = this.actions[i];
-          if (action.isUnlocked()) {
-            const newItem = this.actionElement(action);
-            $("#actiondisplay").append(newItem);
-          }
-        } 
+      for (let i = 0; i < this.actions.length; i++) {
+        const action = this.actions[i];
+        if (action.isUnlocked()) {
+          const newItem = this.actionElement(action);
+          $("#actiondisplay").append(newItem);
+        }
+      } 
+      this.recalculateTooltips();
     }
+
+
 
     refreshActions () {
       $("#actiondisplay").empty();

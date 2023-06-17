@@ -11,16 +11,6 @@ export class Character {
       this.sm = new SkillManager(this, 'skill');
     }
 
-    random0To1 () {
-      return Math.random();
-    }
-
-    luckBasedChance (chance) {
-      if (this.random0To1() < chance) {
-        return true;
-      }
-      return false;
-    }
 
     addMessage (message) {
 
@@ -36,6 +26,10 @@ export class Character {
 
     getJobManager () {
       return this.jm;
+    }
+
+    getBaseSpeed () {
+      return 0;
     }
 
     tick (time) {

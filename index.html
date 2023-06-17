@@ -40,18 +40,34 @@
         <div class="gridseven" id="messagedisplay">
             Message display
         </div>
+        <div class="grideight" id="unlockdisplay">
+            Unlocks
+        </div>
     </div>
-      
+    <div id="tooltipdiv" class="tooltipdiv" style="position: fixed;display:none;">
+        Tooltip
+    </div>
+    <span onmouseover="hoverdiv(event,'tooltipdiv')" 
+    onmouseout="hoverdiv(event,'tooltipdiv')">
+    Mouse over this</span>
+     
     <script type="module">
         import {main} from './js/main.js';
         $(document).ready(function() {
             main();
         });
     </script>
-    <!-- <script type="module">
-        import {welcome} from './welcome.js';  
-        document.body.innerHTML = welcome('W3Docs');
-    </script> -->
+    <script >
+        function hoverdiv(e,divid){
+            var left  = e.clientX  + "px";
+            var top  = e.clientY  + "px";       
+            var div = document.getElementById(divid);     
+            div.style.left = left;
+            div.style.top = top;      
+            $("#"+divid).toggle();
+            return false;
+        }
+    </script>
 
 <p id="demo"></p>
 

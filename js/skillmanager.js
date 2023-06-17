@@ -5,23 +5,36 @@ export class SkillManager {
       this.character = c;
       this.type = type;
       this.initialCreate();
+      this.currentJob = null;
     }
 
     initialJobs () {
       const a0 = this.createSkill('hobo', 'Hobo');
       a0.setUnlockValue("trash", "itemvalue", 1, ">=");
+      a0.addActiveBonusValue("trash", "gainvalue", 0.1);
       this.addSkill(a0);
+
+      const a1 = this.createSkill('dishwasher', 'Dish Washer');
+      a1.addActiveBonusValue("soap", "gainvalue", 0.1);
+      a1.setLevel(1);
+      this.addSkill(a1);
     }
 
     initialSkills () {
-      const a0 = this.createSkill('speech', 'Speech')
-      this.addSkill(a0);
+      this.createInitialSkill('streetsmarts', 'Street Smarts', '');
 
-      const a1 = this.createSkill('streetsmarts', 'Street Smarts')
-      this.addSkill(a1);
+      this.createInitialSkill('speech', 'Speech', '');
 
-      const a2 = this.createSkill('coordination', 'Coordination')
-      this.addSkill(a2);
+      this.createInitialSkill('coordination', 'Coordination', '');
+
+      this.createInitialSkill('clean', 'Clean', '');
+
+      this.createInitialSkill('liquid', 'Liquid', '');
+    }
+
+    createInitialSkill(name, displayname, desc) {
+      const a3 = this.createSkill(name, displayname, desc);
+      this.addSkill(a3);
     }
 
     getCharacter() {
@@ -55,9 +68,10 @@ export class SkillManager {
       return level;
     }
 
-    createSkill (name, display) {
+    createSkill (name, display, desc) {
         const a = new Skill(name, this.getType());
         a.setDisplayName(display);
+        a.setDesc(desc);
         return a;
     }
 
@@ -99,22 +113,37 @@ export class SkillManager {
       return this.type
     }
 
+    toggleSkill (name) {
+      const skill = this.findSkillByName(name);
+      if (skill != null) {
+        skill.toggleActive(this.getCharacter());
+      }
+    }
+
+    createHandler (name, thisclass) {
+      return function () {
+        thisclass.toggleSkill(name);
+      };
+    }
+
     skillElement (skill) {
-        const newDivParent = document.createElement("div");
+        const newDivParent = document.createElement("button");
+        newDivParent.id = this.getType() + 'namebutton' + skill.getName();
         const nameDiv = document.createElement("div");  
         nameDiv.id = this.getType() + 'name' + skill.getName();
         nameDiv.innerHTML = skill.getDisplayText(); 
   
         newDivParent.appendChild(nameDiv);
+        newDivParent.onclick = this.createHandler(skill.getName(), this);
         return newDivParent;
     }
 
     displayText () {
-        for (let i = 0; i < this.skills.length; i++) {
-          const skill = this.skills[i];
-          skill.displayText();
-        } 
-        this.checkAllUnlocks(this.getCharacter());
+      for (let i = 0; i < this.skills.length; i++) {
+        const skill = this.skills[i];
+        skill.displayText();
+      } 
+      this.checkAllUnlocks(this.getCharacter());
     }
 
     getDisplayLocation () {
@@ -136,7 +165,7 @@ export class SkillManager {
     }
 
     refreshSkills () {
-        $(this.getDisplayLocation()).empty();
-        this.addSkills();
-      }
+      $(this.getDisplayLocation()).empty();
+      this.addSkills();
+    }
 }

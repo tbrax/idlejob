@@ -28,6 +28,11 @@ body {
         grid-auto-rows: minmax(100px, auto);
     }
 
+    .activejobbutton {
+        background-color: blue;
+        color: white;
+    }
+
     .gridone {
         grid-column: 1;
         grid-row: 1 / span 2;
@@ -37,12 +42,14 @@ body {
         height: 250px;
         overflow: auto;
     }
+
     .gridtwo {
         grid-column: 2;
         grid-row: 1;
         border: solid blue;
         padding: 5px;
         margin: 5px;
+        overflow: auto;
     }
     .gridthree {
         grid-column: 3;
@@ -65,7 +72,6 @@ body {
         border: solid blue;
         padding: 5px;
         margin: 5px;
-        height: 100px;
         overflow: auto;
     }
 
@@ -79,6 +85,14 @@ body {
 
     .gridseven {
         grid-column: 1;
+        grid-row: 3;
+        border: solid blue;
+        padding: 5px;
+        margin: 5px;
+    }
+
+    .grideight {
+        grid-column: 2;
         grid-row: 3;
         border: solid blue;
         padding: 5px;
@@ -148,9 +162,17 @@ body {
         border-radius: 6px;
         top: -5px;
         left: 105%; 
-        /* Position the tooltip text - see examples below! */
         position: absolute;
-        z-index: 1;
+        z-index: 2;
+      }
+
+      .tooltipdiv {
+        border-radius: 6px;
+        padding: 10px;
+        color: #fff;
+        background-color: black;
+        width: 200px;
+        z-index: 2;
       }
       
       /* Show the tooltip text when you mouse over the tooltip container */

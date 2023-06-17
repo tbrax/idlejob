@@ -7,26 +7,28 @@ export class ItemManager {
   }
 
   initialItems () {
-    const i0 = this.createItem('cash', 'Cash');
-    i0.addTag('Cash');
+    const i0 = this.createInitialItem('cash', 'Cash', '');
     i0.doUnlock();
-    this.addItem(i0);
 
-    const i1 = this.createItem('trash', 'Trash');
-    i1.addTag('Garbage');
-    this.addItem(i1);
+    this.createInitialItem('trash', 'Trash', '')
 
-    const i2 = this.createItem('paper', 'Paper');
-    this.addItem(i2);
+    this.createInitialItem('paper', 'Paper', '')
 
-    const i3 = this.createItem('cardboard', 'Cardboard');
-    this.addItem(i3);
+    this.createInitialItem('glass', 'Glass', '')
 
-    const i4 = this.createItem('glass', 'Glass');
-    this.addItem(i4);
+    this.createInitialItem('cardboard', 'Cardboard', '')
 
-    const i5 = this.createItem('plastic', 'Plastic');
-    this.addItem(i5);
+    this.createInitialItem('plastic', 'plastic', '')
+
+    this.createInitialItem('soap', 'Soap', 'Slippery')
+
+    this.createInitialItem('water', 'Water', 'wet')
+  }
+
+  createInitialItem (name, displayname, desc) {
+    const i6 = this.createItem(name, displayname, desc);
+    this.addItem(i6);
+    return i6;
   }
 
   getItemValue (name) {
@@ -99,6 +101,8 @@ export class ItemManager {
     }
     if (type == "itemvalue") {
       item.gainValue(result.value);
+    } else if (type == "gainvalue") {
+      item.gainGainValue(result.value);
     }
   }
   
@@ -146,9 +150,10 @@ export class ItemManager {
     this.items.push(item);
   }
 
-  createItem (name, display) {
+  createItem (name, display, desc) {
     const i = new Item(name);
     i.setDisplayName(display);
+    i.setDesc(desc);
     return i;
   }
   

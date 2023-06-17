@@ -1,7 +1,7 @@
 export class Criteria {
     constructor() {
-      this.cost = false;
       this.values = [];
+      this.scale = [];
     }
 
     checkCompare(itemvalue, v) {
@@ -29,6 +29,68 @@ export class Criteria {
       return true
     }
 
+    getSingleScale (i, character, add) {
+      const row = this.scale[i];
+      if (row == undefined) {
+        return 0;
+      }
+      if (row.add == add) {
+        if (row.type == 'joblvl') {
+          const j = character.getJobManager().getSkillLevel(row.name);
+          return j * row.value;
+        }
+      }
+      return 0;
+    }
+
+    getTotalScale (character) {
+      let scaleVal = 0;
+      for (let i = 0; i < this.scale.length; i++) {
+        const add = this.getSingleScale(i, character, 'value');
+        scaleVal += add;
+      }
+      return scaleVal;
+    }
+
+    getTotalChance (character) {
+      let chance = 1;
+      for (let i = 0; i < this.values.length; i++) {
+        const row = this.values[i];
+        if (row.type == 'chance') {
+          chance *= row.value;
+        }
+      }
+      return chance + this.chanceBonus(character);
+    }
+
+    random0To1 () {
+      return Math.random();
+    }
+
+    chanceBonus (character) {
+      let chance = 0;
+      for (let i = 0; i < this.scale.length; i++) {
+        const row = this.scale[i];
+        if (row.add == 'chance') {
+          const add = this.getSingleScale(i, character, 'chance');
+          chance += (add * row.value);
+        }
+      }
+      return chance;
+    }
+
+    luckBasedChance (chance, character) {
+      const chanceMade = chance + this.chanceBonus(character);
+      if (this.random0To1() < chanceMade * this.characterChanceBonus(character)) {
+        return true;
+      }
+      return false;
+    }
+
+    characterChanceBonus (character) {
+      return 1;
+    }
+
     metSingleCriteria(character, v) {
       if (v.type == 'itemvalue') {
         const im = character.getItemManager()
@@ -36,13 +98,15 @@ export class Criteria {
       } else if (v.type == 'joblevel') {
         const im = character.getJobManager()
         return this.checkCompare(im.getSkillLevel(v.name), v)
+      } else if (v.type == 'chance') {
+        return this.luckBasedChance(v.value, character);
       }
       return true
     }
 
     metCriteria(character) {
       for (let i = 0; i < this.values.length; i++) {
-        const v = this.values[i]
+        const v = this.values[i];
         const met = this.metSingleCriteria(character, v)
         if (!met) {
           return false
@@ -54,5 +118,15 @@ export class Criteria {
     addItemName(name, type, value, compare) {
       const r = {name, type, value, compare};
       this.values.push(r);
+    }
+
+    addScaleName(name, type, value) {
+      const r = {name, type, value, add:'value'};
+      this.scale.push(r);
+    }
+
+    addScaleAdd(name, type, value, add) {
+      const r = {name, type, value, add};
+      this.scale.push(r);
     }
   }

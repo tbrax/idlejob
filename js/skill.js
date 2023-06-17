@@ -1,4 +1,5 @@
 import { Criteria } from './criteria.js';
+import { Result } from './result.js';
 export class Skill {
     constructor(name, type) {
       this.name = name;
@@ -7,8 +8,54 @@ export class Skill {
       this.exp = 0;
       this.type = type;
       this.isActive = false;
+      this.activeBonus = null;
       this.unlocked = false;
       this.unlock = null;
+      this.desc = '';
+    }
+
+    addActiveBonusValue (name, type, value) {
+        if (this.activeBonus == null) {
+            this.activeBonus = new Result();
+        }
+        this.activeBonus.addItemName(name, type, value);    
+    }
+
+    addActiveBonus(mult, character) {
+        if (this.activeBonus == null) {
+            return
+        }
+        this.activeBonus.setMult(mult);
+        this.activeBonus.performResultList(character);
+    }
+
+    getElementName () {
+        return 'jobnamebutton' + this.getName();
+    }
+
+    changeButtonStyle (on) {
+        const btn = document.getElementById(this.getElementName());
+        if (on) {
+            btn.classList.add("activejobbutton");
+        } else {
+            btn.classList.remove("activejobbutton");
+        }
+    }
+
+    toggleActive (character) {
+        if (this.isActive) {
+            this.isActive = false;
+            this.addActiveBonus(-1, character);
+            this.changeButtonStyle(false);
+        } else {
+            this.isActive = true;
+            this.addActiveBonus(1, character);
+            this.changeButtonStyle(true);
+        }
+    }
+
+    setDesc(d) {
+        this.desc = d;
     }
 
     metUnlock(character) {
@@ -72,16 +119,27 @@ export class Skill {
         this.displayname = name
     }
 
+    isSkillActive () {
+        return this.isActive;
+    }
+
     getDisplayText () {
+        if (this.isSkillActive()) {
+            return `${this.getDisplayName()} ${this.getLevel().toFixed(0)} (${this.exp.toFixed(0)}/${this.getMaxExp().toFixed(0)})`; 
+        }
         return `${this.getDisplayName()} ${this.getLevel().toFixed(0)} (${this.exp.toFixed(0)}/${this.getMaxExp().toFixed(0)})`;
     }
 
     getMaxExp () {
-        return 100 + ((this.level - 1) * 10);
+        return 10 + ((this.level - 1) * 10);
     }
 
     getName () {
         return this.name
+    }
+
+    setLevel (set) {
+        this.level = set;
     }
 
     getLevel () {
@@ -105,7 +163,7 @@ export class Skill {
     }
 
     checkExp () {
-        if (this.exp >= this.getMaxExp()) {
+        while (this.exp >= this.getMaxExp()) {
             this.exp -= this.getMaxExp();
             this.levelUp();
         }

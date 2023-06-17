@@ -15,6 +15,15 @@ export class Item {
       this.holdbonus = [];
       this.tags = [];
       this.unlocked = false;
+      this.desc = '';
+    }
+
+    setDesc (d) {
+      this.desc = d;
+    }
+
+    getDesc () {
+      return this.desc;
     }
 
     isUnlocked () {
@@ -121,13 +130,29 @@ export class Item {
       this.setValue(gain);
     }
 
+    getGain () {
+      return this.gain;
+    }
+
+    setGain (value) {
+      this.gain = value;
+    }
+
+    gainGainValue (value) {
+      const gain = this.getGain() + value;
+      this.setGain(gain);
+    }
+
     gainMax (value) {
       this.max += value;
     }
 
     tickGain (time) {
       const gain = this.tickGainValue() * time;
-      this.gainValue(gain);
+      if (gain != 0) {
+        this.gainValue(gain);
+      }
+
       const maxgain = this.tickMaxGainValue() * time;
       this.gainMax(maxgain);
     }

@@ -17,6 +17,10 @@ export class Action {
       this.am = manager;
     }
 
+    getCharacter () {
+      return this.am.getCharacter();
+    }
+
     isUnlocked () {
       return this.unlocked;
     }
@@ -80,8 +84,33 @@ export class Action {
       return this.getUseTime() > 0
     }
 
+    getUseTimeBonus () {
+      if (this.getResult() == null) {
+        return 0;
+      }
+      const r = this.getResult().getSpeedBonus(this.getCharacter());
+      return r;
+    }
+
+    calculateSpeedReduction () {
+      const b = this.getUseTimeBonus();
+      const s = this.getCharacter().getBaseSpeed();
+      const total = b + s;
+      const calc = 1 / ((100 + total) / 100);
+      return calc;
+    }
+
+    minUseTime () {
+      return 0.1;
+    }
+
     getUseTime () {
-      return this.usetime
+      const s = this.calculateSpeedReduction()
+      let time = this.usetime * s;
+      if (time > 0 && time < this.minUseTime()) {
+        time = this.minUseTime()
+      }
+      return time;
     }
 
     getCurrentTime () {
@@ -122,7 +151,15 @@ export class Action {
     }
  
     getDisplayName () {
-        return this.displayname
+      return this.displayname
+    }
+
+    timeText(time) {
+      return `${time.toFixed(2)}s`;
+    }
+
+    getToolTipName () {
+      return `${this.getDisplayName()} ${this.timeText(this.getUseTime())}`
     }
 
     setDisplayName (name) {
@@ -167,6 +204,13 @@ export class Action {
         this.result = new Result();
       }
       this.result.addItemChance(name, type, value, chance);    
+    }
+
+    setResultValueCriteria (name, type, value, criteria) {
+      if (this.result == null) {
+        this.result = new Result();
+      }
+      this.result.addItemCriteria(name, type, value, criteria);    
     }
 
     setResult (result) {
