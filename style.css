@@ -150,6 +150,29 @@ body {
         display: inline-block;
         border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
       }
+
+      ul {
+        margin:1px;
+        padding:2px;
+        margin-left:15px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .redtext {
+        color: red;
+      }
+
+      .tooltipdesc {
+        font-style: italic;
+        margin-bottom: 5px;
+      }
+
+      .tooltipname {
+        margin-bottom: 5px;
+      }
       
       /* Tooltip text */
       .tooltip .tooltiptext {
@@ -172,7 +195,8 @@ body {
         color: #fff;
         background-color: black;
         width: 200px;
-        z-index: 2;
+        height: auto;
+
       }
       
       /* Show the tooltip text when you mouse over the tooltip container */

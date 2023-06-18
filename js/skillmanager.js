@@ -1,4 +1,5 @@
 import { Skill } from './skill.js';
+import { Criteria } from './criteria.js';
 export class SkillManager {
     constructor(c, type) {
       this.skills = [];
@@ -9,27 +10,45 @@ export class SkillManager {
     }
 
     initialJobs () {
-      const a0 = this.createSkill('hobo', 'Hobo');
-      a0.setUnlockValue("trash", "itemvalue", 1, ">=");
-      a0.addActiveBonusValue("trash", "gainvalue", 0.1);
-      this.addSkill(a0);
+      this.initialJob0();
 
-      const a1 = this.createSkill('dishwasher', 'Dish Washer');
-      a1.addActiveBonusValue("soap", "gainvalue", 0.1);
+      this.initialJob1();
+    }
+
+    initialJob1() {
+      const a1 = this.createSkill('dishwasher', 'Dish Washer', 'Gotta start somewhere');
+      const cr = new Criteria();
+      cr.addScaleName('dishwasher', 'joblvl', 0.1);
+      a1.addActiveBonusCriteria("soap", "gainvalue", 0.0, cr);  
       a1.setLevel(1);
       this.addSkill(a1);
+    }
+
+    initialJob0() {
+      const a0 = this.createSkill('hobo', 'Hobo', "Don't forget your bindle");
+      // a0.setUnlockValue("trash", "itemvalue", 1, ">=");
+      // a0.addActiveBonusValue("trash", "gainvalue", 0.1);
+      const cr = new Criteria();
+      cr.addScaleName('hobo', 'joblvl', 0.1);
+      a0.addActiveBonusCriteria("trash", "gainvalue", 0.0, cr);  
+      this.addSkill(a0);
     }
 
     initialSkills () {
       this.createInitialSkill('streetsmarts', 'Street Smarts', '');
 
-      this.createInitialSkill('speech', 'Speech', '');
+      this.createInitialSkill('speech', 'Speech', 'Me talk good');
 
-      this.createInitialSkill('coordination', 'Coordination', '');
+      this.createInitialSkill('coordination', 'Coordination', 'Eye on the ball');
 
-      this.createInitialSkill('clean', 'Clean', '');
+      this.createInitialSkill('clean', 'Clean', 'Everyone should probably know how to do this');
 
-      this.createInitialSkill('liquid', 'Liquid', '');
+      this.createInitialSkill('liquid', 'Liquid', "Hydroengineering sounds a bit too pretentious");
+
+      this.createInitialSkill('woodworking', 'Woodworking', "Express yourself");
+
+      this.createInitialSkill('treecutting', 'Tree Cutting', "My favorite part is the chainsaw");
+      this.createInitialSkill('animals', 'Animals', "Chicken go CLUCK CLUCK, cow go MOO, piggy go OINK OINK how 'bout you?");
     }
 
     createInitialSkill(name, displayname, desc) {
@@ -39,6 +58,13 @@ export class SkillManager {
 
     getCharacter() {
       return this.character;
+    }
+
+    unlockSkillByName (name) {
+      const sk = this.findSkillByName(name);
+      if (sk != null) {
+        sk.doWantUnlock();
+      }
     }
 
     checkAllUnlocks (character) {
@@ -68,8 +94,8 @@ export class SkillManager {
       return level;
     }
 
-    createSkill (name, display, desc) {
-        const a = new Skill(name, this.getType());
+    createSkill (name, display, desc='') {
+        const a = new Skill(name, this.getType(), this.getCharacter());
         a.setDisplayName(display);
         a.setDesc(desc);
         return a;
@@ -135,7 +161,72 @@ export class SkillManager {
   
         newDivParent.appendChild(nameDiv);
         newDivParent.onclick = this.createHandler(skill.getName(), this);
+
+        newDivParent.addEventListener('mouseover', e => {
+          this.setHoveredSkill(skill.getName());
+          this.hoverdiv(e, this.getHoveredSkill())
+        })
+    
+        newDivParent.addEventListener('mouseleave', e => {
+          this.setHoveredSkill(null);
+          this.hoverdiv(e, this.getHoveredSkill())
+        })
+
         return newDivParent;
+    }
+
+    getHoveredSkill () {
+      return this.getCharacter().getHoveredSkill();
+    }
+
+    setHoveredSkill (name) {
+      this.getCharacter().setHoveredSkill(name);
+    }
+
+    hoverdiv(e, skill){
+      this.getCharacter().hovertooltipdiv(e, skill)
+    }
+
+    remakeTooltipName (skill) {
+      const n = document.getElementById('tooltipname');
+      n.innerHTML = skill.getDisplayName();
+      const d = document.getElementById('tooltipdesc');
+      d.innerHTML = skill.getDesc();
+    }
+
+    remakeTooltipActiveDiv (skill) {
+      const act = skill.getActiveBonus();
+      var tc = document.getElementById('tooltipskillactivelist');
+      $("#tooltipskillactivelist").empty();
+      if (act !== null) {
+        const actList = act.getValues();
+        if (actList.length > 0) { 
+          for (let i = 0; i < actList.length; i++) {
+            const costRow = document.createElement("li"); 
+            costRow.id = 'skillactiverow' + i;
+            costRow.innerHTML = act.getResultRowDisplayName(i, this.getCharacter());
+            tc.appendChild(costRow);
+          }
+        }
+      }
+    }
+
+    remakeTooltipCost (skill) {
+      this.remakeTooltipName(skill);
+      this.remakeTooltipActiveDiv(skill);
+    }
+
+    remakeTooltip () {
+      if (this.getHoveredSkill() != null) {
+        const skill = this.findSkillByName(this.getHoveredSkill())
+        if (skill != null) {
+          this.remakeTooltipCost(skill);
+        }
+      }
+    }
+
+    recalculateTooltips () {
+      this.remakeTooltip();
     }
 
     displayText () {
@@ -144,6 +235,7 @@ export class SkillManager {
         skill.displayText();
       } 
       this.checkAllUnlocks(this.getCharacter());
+      this.recalculateTooltips();
     }
 
     getDisplayLocation () {

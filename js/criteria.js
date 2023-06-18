@@ -115,7 +115,21 @@ export class Criteria {
       return true
     }
 
-    addItemName(name, type, value, compare) {
+    metCriteriaDisplay(character) {
+      for (let i = 0; i < this.values.length; i++) {
+        const v = this.values[i];
+        const met = this.metSingleCriteria(character, v)
+        if (!met) {
+          if (v.type != 'chance') {
+            return false;
+          }
+          
+        }
+      }
+      return true
+    }
+
+    addItemName(name, type, value, compare='') {
       const r = {name, type, value, compare};
       this.values.push(r);
     }

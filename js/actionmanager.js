@@ -2,12 +2,36 @@ import { Action } from './action.js';
 import { Result } from './result.js';
 import { Criteria } from './criteria.js';
 export class ActionManager {
-    constructor(c) {
+    constructor(c, type) {
       this.actions = [];
-      this.initialActions();
+      
       this.character = c;
       this.usingactions = [];
       this.actionqueue = [];
+      this.hoveredaction = null;
+      this.lasthoveredaction = null;
+      this.type = type;
+      this.initial();
+    }
+
+    initial () {
+      if (this.type == 'action') {
+        this.initialActions();
+      } else if (this.type == 'unlock') {
+        this.initialUnlocks();
+      }
+    }
+
+    initialUnlocks () {
+      this.addUnlock0();
+    }
+
+    addUnlock0 () { 
+      const a = this.createUnlock('ratking', 'Rat King', "I'm the giant rat that makes all the rules");
+      // a.setResultValueSpecial("Special text", "special", 1000, 'Make all the rules');
+      a.setResultValue("hobo", "unlockjob", 0);
+      a.setCostValue("trash", "itemvalue", -1);
+      this.addAction(a);
     }
 
     initialActions () {
@@ -18,8 +42,16 @@ export class ActionManager {
       this.addAction5();
       this.addAction6();
       this.addAction7();
+      this.addAction8();
       // a4 = this.createAction('powerwash', 'Power Wash');
       // a4.setResultValue("cash", "itemvalue", 1);
+    }
+
+    addAction8 () { 
+      const a = this.createAction('blackmail', 'Blackmail', "I prefer 'extortion'. The 'X' makes it sound cool.");
+      a.setResultValue("cash", "itemvalue", 1000);
+      a.setCostValue("secret", "itemvalue", -1);
+      this.addAction(a);
     }
 
     addAction7 () { 
@@ -34,13 +66,13 @@ export class ActionManager {
 
     addAction6 () { 
       const a = this.createAction('fillwater', 'Fill Water', 'Stay Hydrated');
-      a.setResultValue("water", "itemvalue", 1.0);
-      a.setResultValue("liquid", "skillexp", 0.1);
+      a.setResultValue("water", "itemvalue", 1);
+      a.setResultValue("liquid", "skillexp", 1);
       this.addAction(a);
     }
 
     addAction1 () { 
-      const a = this.createAction('panhandle', 'Panhandle', 'You do what you have to.');
+      const a = this.createAction('panhandle', 'Panhandle', "You'll do what you have to");
       a.setResultValue("cash", "itemvalue", 0.5);
       a.setResultValue("speech", "skillexp", 0.1);
       a.setResultValue("hobo", "jobexp", 1);
@@ -59,7 +91,7 @@ export class ActionManager {
     }
 
     addAction3 () { 
-      const a3 = this.createAction('pickuptrash', 'Pick Up Trash', '');
+      const a3 = this.createAction('pickuptrash', 'Pick Up Trash', 'Ooh a piece of candy!');
       a3.setResultValue("hobo", "jobexp", 1);
       // a3.setUseTime(0.1);
       const cr3 = new Criteria();
@@ -68,6 +100,11 @@ export class ActionManager {
       cr31.addItemName('chance', 'chance', 0.1);
       cr31.addScaleAdd('hobo', 'joblvl', 0.1, 'chance');
       a3.setResultValueCriteria("trash", "itemvalue", 1, cr31);
+
+      const c1 = new Criteria();
+      c1.addItemName("hobo", "joblevel", 2, ">="); 
+      c1.addItemName('chance', 'chance', 0.1);
+      a3.setResultValueCriteria("secret", "itemvalue", 1, c1);
       this.addAction(a3);
     }
 
@@ -78,7 +115,7 @@ export class ActionManager {
       a2.setResultValueChance("cardboard", "itemvalue", 1, 0.5);
       a2.setResultValueChance("cash", "itemvalue", 1, 0.1);
       a2.setCostValue("trash", "itemvalue", -1);
-      a2.setResultValue("hobo", "jobexp", 2);
+      a2.setResultValue("hobo", "jobexp", 20);
       a2.setResultValue("coordination", "skillexp", 1);
       a2.setUnlockValue("trash", "itemvalue", 1, ">=");
       a2.setUnlockValue("hobo", "joblevel", 1, ">=");
@@ -86,13 +123,21 @@ export class ActionManager {
     }
 
     addAction5 () {
-      const a4 = this.createAction('cleanplate', 'Clean Plate', '');
+      const a4 = this.createAction('cleanplate', 'Clean Plate', 'Licking optional');
       a4.setUnlockValue("dishwasher", "joblevel", 1, ">=");
       a4.setResultValue("dishwasher", "jobexp", 1);
       const a4c = new Criteria();
       a4c.addScaleName('dishwasher', 'joblvl', 0.1);
       a4.setResultValueCriteria("cash", "itemvalue", 1, a4c);
       this.addAction(a4);
+    }
+
+    getHoveredAction () {
+      return this.getCharacter().getHoveredAction();
+    }
+
+    setHoveredAction (name) {
+      this.getCharacter().setHoveredAction(name);
     }
 
     addMessage(message) {
@@ -107,9 +152,19 @@ export class ActionManager {
       return this.character
     }
 
-    createAction (name, display, desc) {
+    createUnlock (name, display, desc='') {
       const a = new Action(name, this);
       a.setDisplayName(display);
+      a.setDesc(desc);
+
+      a.setAsUnlock();
+      return a;
+    }
+
+    createAction (name, display, desc='') {
+      const a = new Action(name, this);
+      a.setDisplayName(display);
+      a.setDesc(desc);
       return a;
     }
 
@@ -305,6 +360,7 @@ export class ActionManager {
       this.displayUsingActions();
       this.checkQueue();
       this.checkAllUnlocks(this.getCharacter());
+      this.recalculateTooltips();
     }
 
     addUseAction(action) {
@@ -361,6 +417,14 @@ export class ActionManager {
         };
     }
 
+    getDisplayType () {
+      return this.type;
+    }
+
+    getTooltipType () {
+      return 'action';
+    }
+
     toolTipElement (action) {
       const toolTipDiv = document.createElement("span");
       toolTipDiv.classList.add("tooltiptext");
@@ -397,7 +461,6 @@ export class ActionManager {
           toolTipDiv.appendChild(resultsDiv);
 
           for (let i = 0; i < resultList.length; i++) {
-            const rs = resultList[i];
             const rsDiv = document.createElement("li");
             rsDiv.innerHTML = result.getResultRowDisplayName(i, this.getCharacter());
             listEle.appendChild(rsDiv);
@@ -407,42 +470,189 @@ export class ActionManager {
       return toolTipDiv
     }
 
-    recalculateTooltips () {
-      for (let i = 0; i < this.actions.length; i++) {
-        const action = this.actions[i];
-        if (action.isUnlocked()) {
-          const actionName = 'actionname' + action.getName();
-          const nameDiv = document.getElementById(actionName);
-
-          // const toolTipDiv = this.toolTipElement(action)
-          // nameDiv.appendChild(toolTipDiv);
+    remakeTooltipCostDiv (action) {
+      const cost = action.getCost();
+      var tc = document.getElementById('tooltip' + this.getTooltipType() +'costlist');
+      $("#tooltipactioncostlist").empty();
+      let nocost = false;
+      if (cost !== null) {
+        const costList = cost.getValues();
+        if (costList.length > 0) {
+          $("#tooltipactioncost").innerHTML = 'Cost:'
+          for (let i = 0; i < costList.length; i++) {
+            const costRow = document.createElement("li"); 
+            costRow.id = 'actioncostrow' + i;
+            costRow.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
+            tc.appendChild(costRow);
+          }
+        } else {
+          nocost = true;
         }
-      } 
+      } else {
+        nocost = true;
+      }
+
+      let tac = document.getElementById('tooltip' + this.getTooltipType() + 'cost')
+      if (nocost) {
+        tac.classList.add("hidden");
+      } else {
+        tac.classList.remove("hidden");
+      }
+    }
+
+    remakeTooltipResultDiv (action) {
+      const cost = action.getResult();
+      var tc = document.getElementById('tooltip' + this.getTooltipType() + 'resultlist');
+      $("#tooltipactionresultlist").empty();
+      let nocost = false;
+      if (cost !== null) {
+        const costList = cost.getValues();
+        if (costList.length > 0) {
+          for (let i = 0; i < costList.length; i++) {
+            const costRow = document.createElement("li"); 
+            costRow.id = '' + this.getTooltipType() + 'resultrow' + i;
+             
+            const cri = costRow.criteria
+            let unlockrow = true;
+            if (cri != null) {
+              unlockrow = cri.metCriteriaDisplay(this.getCharacter())
+            }
+
+            if (unlockrow) {
+              costRow.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
+            } else {
+              costRow.innerHTML = '???';
+            }
+
+            tc.appendChild(costRow);
+          }
+        } else {
+          nocost = true;
+        }
+      } else {
+        nocost = true;
+      }
+
+      let tac = document.getElementById('tooltip' + this.getTooltipType() + 'result');
+      if (nocost) {
+        tac.classList.add("hidden");
+      } else {
+        tac.classList.remove("hidden");
+      }
+    }
+
+    remakeTooltipName (action) {
+      const n = document.getElementById('tooltipname');
+      n.innerHTML = action.getDisplayName();
+      const d = document.getElementById('tooltipdesc');
+      d.innerHTML = action.getDesc();
+    }
+
+    remakeTooltipCost (action) {
+      this.remakeTooltipCostDiv(action);
+      this.remakeTooltipResultDiv(action);
+      this.remakeTooltipName(action);
+    }
+
+    updateTooltipCostDiv (action) {
+      const cost = action.getCost();
+      if (cost !== null) {
+        const costList = cost.getValues();
+        if (costList.length > 0) { 
+          for (let i = 0; i < costList.length; i++) {
+            const resultrow = costList[i]
+            const rowDiv = document.getElementById('' + this.getTooltipType() + 'costrow' + i);
+            if (rowDiv != null) {
+              rowDiv.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
+              const havecost = action.checkHaveResultRow(resultrow)
+              if (havecost) {
+                rowDiv.classList.remove("redtext");
+              } else {
+                rowDiv.classList.add("redtext");
+              }
+            }
+          }
+        }
+      }
+    }
+
+    updateTooltipResultDiv (action) {
+      const cost = action.getResult();
+      if (cost !== null) {
+        const costList = cost.getValues();
+        if (costList.length > 0) { 
+          for (let i = 0; i < costList.length; i++) {
+            const resultrow = costList[i]
+            const cri = resultrow.criteria;
+            let unlockrow = true;
+            if (cri != null) {
+              unlockrow = cri.metCriteriaDisplay(this.getCharacter())
+            }
+
+            const rowDiv = document.getElementById('' + this.getTooltipType() + 'resultrow' + i);
+
+            if (rowDiv != null) {
+              if (unlockrow) {
+                rowDiv.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
+              } else {
+                rowDiv.innerHTML = '???';
+              }
+            }
+          }
+        }
+      }
+    }
+
+    updateTooltipCost (action) {
+      this.updateTooltipCostDiv(action);
+      this.updateTooltipResultDiv(action);
+    }
+
+    remakeTooltip () {
+      if (this.getHoveredAction() != null) {
+        const action = this.findActionByName(this.getHoveredAction())
+        if (action != null) {
+          this.remakeTooltipCost(action);
+          this.updateTooltipCost(action);
+        }
+      }
+    }
+
+    recalculateTooltips () {
+      this.remakeTooltip();
     }
   
-    hoverdiv(e, divid){
-      var left  = e.clientX  + "px";
-      var top  = e.clientY  + "px";       
-      var div = document.getElementById(divid);     
-      div.style.left = left;
-      div.style.top = top;      
-      $("#"+divid).toggle();
-      return false;
+    hoverdiv(e, item){
+      this.getCharacter().hovertooltipdiv(e, item)
+      // var left  = (e.clientX + 5)  + "px";
+      // var top  = (e.clientY + 5)  + "px";       
+      // var div = document.getElementById(divid);     
+      // div.style.left = left;
+      // div.style.top = top; 
+      // if (item != null) {
+      //   $("#"+divid).show();
+      // } else {
+      //   $("#"+divid).hide();
+      // }
     }
 
     actionElement (action) {
       const newDivParent = document.createElement("span");
       const nameDiv = document.createElement("div");  
-      nameDiv.id = 'actionname' + action.getName();
+      nameDiv.id = '' + this.getDisplayType() + 'ame' + action.getName();
       const buttonDiv = document.createElement("button");
       buttonDiv.innerHTML = action.getDisplayName(); 
       buttonDiv.onclick = this.createHandler(action.getName(), this);
       buttonDiv.addEventListener('mouseover', e => {
-        this.hoverdiv(e, 'tooltipdiv')
+        this.setHoveredAction(action.getName());
+        this.hoverdiv(e, this.getHoveredAction());
+        this.recalculateTooltips();
       })
 
       buttonDiv.addEventListener('mouseleave', e => {
-        this.hoverdiv(e, 'tooltipdiv')
+        this.setHoveredAction(null);
+        this.hoverdiv(e, this.getHoveredAction());
+        this.recalculateTooltips();
       })
 
       nameDiv.classList.add("tooltip");
@@ -459,16 +669,14 @@ export class ActionManager {
         const action = this.actions[i];
         if (action.isUnlocked()) {
           const newItem = this.actionElement(action);
-          $("#actiondisplay").append(newItem);
+          $('#' + this.getDisplayType() + 'display').append(newItem);
         }
       } 
       this.recalculateTooltips();
     }
 
-
-
     refreshActions () {
-      $("#actiondisplay").empty();
+      $('#' + this.getDisplayType() + 'display').empty();
       this.addActions();
     }
   }

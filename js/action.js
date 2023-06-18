@@ -6,15 +6,37 @@ export class Action {
       this.displayname = name;
       this.unlock = null;
       this.unlocked = false;
+      this.isAnUnlockAction = false;
+      this.maxUnlocks = 1;
       this.usetime = 1;
       this.time = 0;
       this.cooldown = 0;
-
+      this.desc = '';
       this.cost = null;
       this.result = null;
 
       this.level = 0;
       this.am = manager;
+    }
+
+    setAsUnlock() {
+      this.isAnUnlockAction = true;
+      this.usetime = 0;
+    }
+
+    setMaxUnlocks(val) {
+      this.maxUnlocks = val;
+    }
+
+    setDesc (desc) {
+      this.desc = desc;
+    }
+
+    getDesc () {
+      if (this.desc == '') {
+        return this.getDisplayName();
+      }
+      return this.desc;
     }
 
     getCharacter () {
@@ -64,6 +86,7 @@ export class Action {
       }
       this.unlock.addItemName(name, type, value, compare);    
     }
+    
 
     getItemManager () {
       return this.am.getItemManager(this.am)
@@ -71,6 +94,10 @@ export class Action {
 
     checkHaveResult (result) {
       return this.getItemManager().checkHaveResult(result)
+    }
+
+    checkHaveResultRow (resultrow) {
+      return this.getItemManager().checkHaveResultRow(resultrow)
     }
 
     checkDoAction () {
@@ -204,6 +231,13 @@ export class Action {
         this.result = new Result();
       }
       this.result.addItemChance(name, type, value, chance);    
+    }
+
+    setResultValueSpecial (name, type, value, desc) {
+      if (this.result == null) {
+        this.result = new Result();
+      }
+      this.result.addItemSpecial(name, type, value, desc);    
     }
 
     setResultValueCriteria (name, type, value, criteria) {

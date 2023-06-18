@@ -33,6 +33,14 @@ export class Result {
       }
       return row.criteria.getTotalChance(character);
     }
+    
+    numformat(num) {
+      let fixed = 0;
+      if (num % 1 != 0) {
+        fixed = 1
+      }
+      return `${Math.abs(num).toFixed(fixed)}`
+    }
 
     getResultRowDisplayName (i, character) {
       let newResultRow = this.getPerformCopy(i);
@@ -45,19 +53,27 @@ export class Result {
       }
       if (newResultRow.type == "itemvalue") {
         const im = character.getItemManager()
-        return `${Math.abs(newResultRow.value)} ${im.getDisplayName(newResultRow.name)} ${add}`;
+        return `${this.numformat(newResultRow.value)} ${im.getDisplayName(newResultRow.name)} ${add}`;
       } else if (newResultRow.type == "skillexp") {
         const m = character.getSkillManager()
-        return `${Math.abs(newResultRow.value)} ${m.getDisplayName(newResultRow.name)} SXP`;
+        return `${this.numformat(newResultRow.value)} ${m.getDisplayName(newResultRow.name)} SXP`;
       } else if (newResultRow.type == "jobexp") {
         const m = character.getJobManager()
-        return `${Math.abs(newResultRow.value)} ${m.getDisplayName(newResultRow.name)} JXP`;
+        return `${this.numformat(newResultRow.value)} ${m.getDisplayName(newResultRow.name)} JXP`;
       } else if (newResultRow.type == "gainvalue") {
+        const im = character.getItemManager()
+        return `${this.numformat(newResultRow.value)} ${im.getDisplayName(newResultRow.name)} /s`;
+      } else if (newResultRow.type == "special") {
+        return newResultRow.desc;
+      } else if (newResultRow.type == "unlockjob") {
         const m = character.getJobManager()
-        return `${Math.abs(newResultRow.value)} ${m.getDisplayName(newResultRow.name)} JXP`;
+        return `Unlock ${m.getDisplayName(newResultRow.name)}`;
+      } else if (newResultRow.type == "unlockskill") {
+        const m = character.getSkillManager()
+        return `Unlock ${m.getDisplayName(newResultRow.name)}`;
       }
 
-      return `${Math.abs(newResultRow.value)} ${newResultRow.name}`;
+      return `${this.numformat(newResultRow.value)} ${newResultRow.name}`;
     }
 
     performSingleResult (resultRow, character) {
@@ -71,18 +87,26 @@ export class Result {
       } else if (type == "jobexp") {
         const jm = character.getJobManager();
         jm.itemAction(resultRow);
+      } else if (type == "special") {
+        character.specialResult(resultRow);
+      } else if (type == "unlockjob") {
+        const jm = character.getJobManager();
+        jm.unlockSkillByName(resultRow.name);
+      } else if (type == "unlockskill") {
+        const sm = character.getSkillManager();
+        sm.unlockSkillByName(resultRow.name);
       }
     }
 
     addScaling(result, criteria, character) {
-      let baseScale = this.getMult();
-
       if (criteria == null) {
-        result.value *= baseScale;
+        result.value *= this.getMult();
         return;
       }
-      baseScale += criteria.getTotalScale(character);
-      result.value *= baseScale;
+
+      let addAmt = criteria.getTotalScale(character) * this.getMult();
+      result.value *= this.getMult();
+      result.value += addAmt;   
     }
 
     performResultList (character) {
@@ -106,7 +130,7 @@ export class Result {
 
     getPerformCopy (i) {
       const rsm = this.values[i];
-      const newRm = {name:rsm.name, type:rsm.type, value:rsm.value, criteria: rsm.criteria}
+      const newRm = {name:rsm.name, type:rsm.type, value:rsm.value, criteria: rsm.criteria, desc:rsm.desc}
       return newRm;
     }
 
@@ -141,6 +165,11 @@ export class Result {
 
     addItemCriteria(name, type, value, criteria) {
       const r = {name, type, value, criteria};
+      this.values.push(r);
+    }
+
+    addItemSpecial(name, type, value, desc) {
+      const r = {name, type, value, desc, criteria: null};
       this.values.push(r);
     }
 

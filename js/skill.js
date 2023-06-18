@@ -1,7 +1,7 @@
 import { Criteria } from './criteria.js';
 import { Result } from './result.js';
 export class Skill {
-    constructor(name, type) {
+    constructor(name, type, character) {
       this.name = name;
       this.displayname = name;
       this.level = 0;
@@ -12,6 +12,24 @@ export class Skill {
       this.unlocked = false;
       this.unlock = null;
       this.desc = '';
+      this.character = character;
+      this.wantUnlock;
+    }
+
+    doWantUnlock () {
+        this.wantUnlock = true;
+    }
+
+    getWantUnlock () {
+        return this.wantUnlock;
+    }
+
+    getCharacter () {
+        return this.character
+    }
+
+    getActiveBonus () {
+        return this.activeBonus;
     }
 
     addActiveBonusValue (name, type, value) {
@@ -21,7 +39,15 @@ export class Skill {
         this.activeBonus.addItemName(name, type, value);    
     }
 
-    addActiveBonus(mult, character) {
+    addActiveBonusCriteria (name, type, value, criteria) {
+        if (this.activeBonus == null) {
+            this.activeBonus = new Result();
+        }
+        this.activeBonus.addItemCriteria(name, type, value, criteria);    
+    }
+    
+
+    addActiveBonus(mult, character) {      
         if (this.activeBonus == null) {
             return
         }
@@ -35,11 +61,26 @@ export class Skill {
 
     changeButtonStyle (on) {
         const btn = document.getElementById(this.getElementName());
+        if (btn == null) {
+            return;
+        }
         if (on) {
             btn.classList.add("activejobbutton");
         } else {
             btn.classList.remove("activejobbutton");
         }
+    }
+
+    removeActive (character) {
+        this.isActive = false;
+        this.addActiveBonus(-1, character);
+        this.changeButtonStyle(false);
+    }
+
+    addActive (character) {
+        this.isActive = true;
+        this.addActiveBonus(1, character);
+        this.changeButtonStyle(true);
     }
 
     toggleActive (character) {
@@ -58,6 +99,13 @@ export class Skill {
         this.desc = d;
     }
 
+    getDesc() {
+        if (this.desc == '') {
+            return this.getDisplayName();
+        }
+        return this.desc;
+    }
+
     metUnlock(character) {
         if (this.level == 0) {
             return false;
@@ -66,7 +114,7 @@ export class Skill {
             return true;
         }
         if (this.unlock == null) {
-            return true;
+            return false;
         }
         return this.unlock.metCriteria(character)
     }
@@ -77,6 +125,7 @@ export class Skill {
 
     doUnlock () {
         this.unlocked = true;
+        this.checkFirstLevel();
     }
   
     getUnlocked () {
@@ -86,9 +135,9 @@ export class Skill {
     checkUnlock (character) {
         if (!this.getUnlocked()) {
             const wantDoUnlock = this.metUnlock(character)
-            if (wantDoUnlock) {
-            this.doUnlock()
-            return true;
+            if (wantDoUnlock || this.getWantUnlock()) {
+                this.doUnlock();
+                return true;
             }
         }
         return false;
@@ -107,7 +156,10 @@ export class Skill {
 
     displayText () {
         if (this.isUnlocked()) {
-            document.getElementById(this.getType() + 'name' + this.getName()).innerHTML = this.getDisplayText();
+            const el = document.getElementById(this.getType() + 'name' + this.getName())
+            if (el != null) {
+                el.innerHTML = this.getDisplayText();
+            }
         }
     }
 
@@ -146,18 +198,32 @@ export class Skill {
         return this.level
     }
 
+    checkActiveRecalc () {
+        if (this.isActive) {
+
+        }
+    }
+
     levelUp () {
+        let reactive = false;
+        if (this.isActive) {
+            reactive = true;
+            this.removeActive(this.getCharacter());
+        }
         this.level += 1;
+        if (reactive) {
+            this.addActive(this.getCharacter());
+        }
     }
 
     checkFirstLevel () {
-        if (this.level == 0) {
+        if (this.level < 1) {
             this.level = 1;
         }
     }
 
     gainExp (value) {
-        this.checkFirstLevel();
+        // this.checkFirstLevel();
         this.exp += value;
         this.checkExp();
     }

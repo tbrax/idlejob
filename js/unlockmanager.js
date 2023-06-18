@@ -1,7 +1,8 @@
 export class UnlockManager {
-    constructor() {
+    constructor(character) {
         this.unlocks = [];
         this.have = [];
         this.active = [];
+        this.character = character;
     }
 }
