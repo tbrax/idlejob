@@ -15,6 +15,14 @@ export class Character {
       this.hoveredskill = null;
     }
 
+    numformat(num) {
+      let fixed = 0;
+      if (num % 1 != 0) {
+        fixed = 1
+      }
+      return `${Math.abs(num).toFixed(fixed)}`
+    }
+
     specialResult (result) {
       console.log(result);
     }
@@ -137,6 +145,10 @@ export class Character {
       return this.jm;
     }
 
+    getActionManager () {
+      return this.am;
+    }
+
     getBaseSpeed () {
       return 0;
     }
@@ -152,6 +164,7 @@ export class Character {
       this.im.displayText();
       this.sm.displayText();
       this.jm.displayText();
+      // this.um.displayText();
     }
 
     displayItems () {

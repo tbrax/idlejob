@@ -191,7 +191,9 @@ export class Skill {
     }
 
     setLevel (set) {
-        this.level = set;
+        if (this.unlocked) {
+            this.level = set;
+        }
     }
 
     getLevel () {
@@ -218,7 +220,7 @@ export class Skill {
 
     checkFirstLevel () {
         if (this.level < 1) {
-            this.level = 1;
+            this.setLevel(1);
         }
     }
 

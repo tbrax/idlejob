@@ -71,6 +71,9 @@ export class Result {
       } else if (newResultRow.type == "unlockskill") {
         const m = character.getSkillManager()
         return `Unlock ${m.getDisplayName(newResultRow.name)}`;
+      } else if (newResultRow.type == "unlockaction") {
+        const m = character.getActionManager()
+        return `Unlock ${m.getDisplayName(newResultRow.name)}`;
       }
 
       return `${this.numformat(newResultRow.value)} ${newResultRow.name}`;
@@ -95,6 +98,9 @@ export class Result {
       } else if (type == "unlockskill") {
         const sm = character.getSkillManager();
         sm.unlockSkillByName(resultRow.name);
+      } else if (type == "unlockaction") {
+        const sm = character.getActionManager();
+        sm.unlockActionByName(resultRow.name);
       }
     }
 

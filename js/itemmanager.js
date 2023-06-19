@@ -27,6 +27,8 @@ export class ItemManager {
     this.createInitialItem('treasure', 'Treasure', 'Better than any friends you make along the way')
     this.createInitialItem('secret', 'Secret', "It's a secret to everybody")
     this.createInitialItem('wood', 'Wood', "Yep, thats wood")
+    const i1 = this.createInitialItem('joboffer', 'Job Offer', "No experience required")
+    i1.setMax(1)
   }
 
   createInitialItem (name, displayname, desc) {

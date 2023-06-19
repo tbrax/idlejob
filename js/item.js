@@ -18,6 +18,10 @@ export class Item {
       this.desc = '';
     }
 
+    getUseMax () {
+      return this.useMax;
+    }
+
     setDesc (d) {
       this.desc = d;
     }
@@ -45,8 +49,19 @@ export class Item {
       return false;
     }
 
+    numformat(num) {
+      let fixed = 0;
+      if (num % 1 != 0) {
+        fixed = 1
+      }
+      return `${Math.abs(num).toFixed(fixed)}`
+    }
+
     getDisplayNumberText () {
-      return `${this.value.toFixed(1)}`;
+      if (this.getUseMax()) {
+        return `${this.numformat(this.value)} / ${this.numformat(this.getMax())}`;
+      }
+      return `${this.numformat(this.value)}`;
     }
 
     displayNumber () {
@@ -104,6 +119,11 @@ export class Item {
       return this.value
     }
 
+    setMax (val) {
+      this.max = val; 
+      this.setUseMax(true);
+    }
+
     setUseMax (value) {
       this.useMax = value;
     }
@@ -119,10 +139,6 @@ export class Item {
           this.value = this.getMax();
         }
       }
-    }
-
-    setMax (value) {
-      this.max = value;
     }
 
     gainValue (value) {

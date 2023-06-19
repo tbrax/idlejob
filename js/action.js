@@ -17,6 +17,23 @@ export class Action {
 
       this.level = 0;
       this.am = manager;
+      this.wantUnlock  = false;
+    }
+
+    useAction () {
+      this.maxUnlocks -= 1;
+    }
+
+    doWantUnlock () {
+      this.wantUnlock = true;
+    }
+
+    getWantUnlock () {
+      return this.wantUnlock;
+    }
+
+    getMaxUnlocks () {
+      return this.maxUnlocks;
     }
 
     setAsUnlock() {
@@ -56,13 +73,17 @@ export class Action {
         return true
       }
       if (this.unlock == null) {
-        return true
+        return false
       }
       return this.unlock.metCriteria(character)
     }
 
     doUnlock () {
       this.unlocked = true;
+    }
+
+    lock () {
+      this.unlocked = false;
     }
 
     getUnlocked () {
@@ -72,7 +93,7 @@ export class Action {
     checkUnlock (character) {
       if (!this.getUnlocked()) {
         const wantDoUnlock = this.metUnlock(character)
-        if (wantDoUnlock) {
+        if (wantDoUnlock || this.getWantUnlock()) {
           this.doUnlock()
           return true;
         }
@@ -86,7 +107,6 @@ export class Action {
       }
       this.unlock.addItemName(name, type, value, compare);    
     }
-    
 
     getItemManager () {
       return this.am.getItemManager(this.am)

@@ -16,7 +16,7 @@ export class SkillManager {
     }
 
     initialJob1() {
-      const a1 = this.createSkill('dishwasher', 'Dish Washer', 'Gotta start somewhere');
+      const a1 = this.createSkill('dishwasher', 'Dish Washer', 'Scrape your plate');
       const cr = new Criteria();
       cr.addScaleName('dishwasher', 'joblvl', 0.1);
       a1.addActiveBonusCriteria("soap", "gainvalue", 0.0, cr);  
@@ -129,7 +129,11 @@ export class SkillManager {
           return
         }
         if (type == "skillexp") {
-            skill.gainExp(result.value);
+          if (!skill.isUnlocked()) {
+            skill.doWantUnlock();
+            this.checkAllUnlocks();
+          }
+          skill.gainExp(result.value);
         } else if (type == "jobexp") {
           skill.gainExp(result.value);
       }

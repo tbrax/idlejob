@@ -14,6 +14,10 @@ export class ActionManager {
       this.initial();
     }
 
+    getType () {
+      return this.type;
+    }
+
     initial () {
       if (this.type == 'action') {
         this.initialActions();
@@ -23,7 +27,38 @@ export class ActionManager {
     }
 
     initialUnlocks () {
-      this.addUnlock0();
+      this.addUnlock1();
+      this.addUnlock2();
+      this.addUnlock3();
+    }
+
+    addUnlock3 () { 
+      const a = this.createUnlock('denizensofthecity', 'Denizens of the city', "Call various animals to your side");
+      // a.setResultValueSpecial("Special text", "special", 1000, 'Make all the rules');
+      a.setResultValue("trainrat", "unlockaction", 0);
+      a.setCostValue("trash", "itemvalue", -20);
+      this.addAction(a);
+    }
+
+    addUnlock2 () { 
+      const a = this.createUnlock('becomejobdishwasher', 'Become Dishwasher', "Gotta start somewhere");
+      // a.setResultValueSpecial("Special text", "special", 1000, 'Make all the rules');
+      a.setResultValue("dishwasher", "unlockjob", 0);
+      a.setCostValue("joboffer", "itemvalue", -1);
+      a.doUnlock();
+      // a2.setUnlockValue("trash", "itemvalue", 1, ">=");
+      this.addAction(a);
+    }
+    
+
+    addUnlock1 () { 
+      const a = this.createUnlock('becomejobhobo', 'Become Hobo', "Do you really need a job offer for this?");
+      // a.setResultValueSpecial("Special text", "special", 1000, 'Make all the rules');
+      a.setResultValue("hobo", "unlockjob", 0);
+      a.setCostValue("joboffer", "itemvalue", -1);
+      a.doUnlock();
+      // a2.setUnlockValue("trash", "itemvalue", 1, ">=");
+      this.addAction(a);
     }
 
     addUnlock0 () { 
@@ -43,8 +78,23 @@ export class ActionManager {
       this.addAction6();
       this.addAction7();
       this.addAction8();
+      this.addAction9();
+      this.addAction10();
       // a4 = this.createAction('powerwash', 'Power Wash');
       // a4.setResultValue("cash", "itemvalue", 1);
+    }
+
+    addAction10 () { 
+      const a = this.createAction('trainrat', 'Train Rat', "His name is squeaks");
+      a.setResultValue("cash", "itemvalue", 1);
+      this.addAction(a);
+    }
+
+    addAction9 () { 
+      const a = this.createAction('findjob', 'Find Job', "No experience required");
+      a.setResultValue("joboffer", "itemvalue", 1);
+      a.doUnlock();
+      this.addAction(a);
     }
 
     addAction8 () { 
@@ -105,6 +155,7 @@ export class ActionManager {
       c1.addItemName("hobo", "joblevel", 2, ">="); 
       c1.addItemName('chance', 'chance', 0.1);
       a3.setResultValueCriteria("secret", "itemvalue", 1, c1);
+      a3.setUnlockValue("hobo", "joblevel", 1, ">=");
       this.addAction(a3);
     }
 
@@ -125,6 +176,7 @@ export class ActionManager {
     addAction5 () {
       const a4 = this.createAction('cleanplate', 'Clean Plate', 'Licking optional');
       a4.setUnlockValue("dishwasher", "joblevel", 1, ">=");
+
       a4.setResultValue("dishwasher", "jobexp", 1);
       const a4c = new Criteria();
       a4c.addScaleName('dishwasher', 'joblvl', 0.1);
@@ -197,6 +249,7 @@ export class ActionManager {
       let madeUnlock = false;
       for (let i = 0; i < this.actions.length; i++) {
         const unlocked = this.actions[i].checkUnlock(character);
+
         if (unlocked) {
           madeUnlock = true;
         }
@@ -206,10 +259,12 @@ export class ActionManager {
       }
     }
 
-    performResult (result) {
+    performResult (result, action) {
       if (result == null) {
         return
       }
+      action.useAction();
+      this.refreshItemUnlocks();
       result.performResultList(this.getCharacter());
       // this.performResultList(result, rm, this);
     }
@@ -224,11 +279,18 @@ export class ActionManager {
         a.tickUse(time)
         if(a.isUseTimeComplete()) {
           a.resetUseTime();
-          this.performResult(a.getResult(), this);
+          this.performResult(a.getResult(), a);
+
           this.deleteUsingActionElement(a);
           this.usingactions.splice(i, 1);
           this.refreshCharacterText();
         }
+      }
+    }
+
+    refreshItemUnlocks () {
+      if (this.getType() == 'unlock') {
+        this.refreshActions();
       }
     }
 
@@ -371,11 +433,11 @@ export class ActionManager {
       const a = this.findActionByName(name);
       const canDo = a.checkDoAction();
       if (canDo) {
-        this.performResult(a.getCost(), this);
+        this.performResult(a.getCost(), a);
         if (a.hasUseTime()) {
           this.addUseAction(a, this)
         } else {
-          this.performResult(a.getResult(), this);
+          this.performResult(a.getResult(), a);
         }
         this.character.tickRefresh();
       }
@@ -636,6 +698,21 @@ export class ActionManager {
       // }
     }
 
+    getDisplayName (name) {
+      const i = this.findActionByName(name)
+      if (i == null) {
+        return ''
+      }
+      return i.getDisplayName();
+    }
+
+    unlockActionByName (name) {
+      const sk = this.findActionByName(name);
+      if (sk != null) {
+        sk.doWantUnlock();
+      }
+    }
+
     actionElement (action) {
       const newDivParent = document.createElement("span");
       const nameDiv = document.createElement("div");  
@@ -668,8 +745,16 @@ export class ActionManager {
       for (let i = 0; i < this.actions.length; i++) {
         const action = this.actions[i];
         if (action.isUnlocked()) {
-          const newItem = this.actionElement(action);
-          $('#' + this.getDisplayType() + 'display').append(newItem);
+          let show = true;
+          if (this.getType() == 'unlock') {
+            if (action.getMaxUnlocks() <= 0) {
+              show = false;
+            }
+          }
+          if (show) {
+            const newItem = this.actionElement(action);
+            $('#' + this.getDisplayType() + 'display').append(newItem);
+          }
         }
       } 
       this.recalculateTooltips();
