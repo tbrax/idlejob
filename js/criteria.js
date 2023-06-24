@@ -35,8 +35,15 @@ export class Criteria {
         return 0;
       }
       if (row.add == add) {
-        if (row.type == 'joblvl') {
+        if (row.type == 'joblevel') {
           const j = character.getJobManager().getSkillLevel(row.name);
+          return j * row.value;
+        } else if (row.type == 'itemvalue') {
+          const j = character.getItemManager().getItemValue(row.name);
+          // const j = character.getJobManager().getSkillLevel(row.name);
+          return j * row.value;
+        } else if (row.type == 'skilllevel') {
+          const j = character.getSkillManager().getSkillLevel(row.name);
           return j * row.value;
         }
       }
@@ -95,11 +102,23 @@ export class Criteria {
       if (v.type == 'itemvalue') {
         const im = character.getItemManager()
         return this.checkCompare(im.getItemValue(v.name), v)
+      } else if (v.type == 'itemmaxvalue') {
+        const im = character.getItemManager()
+        return this.checkCompare(im.getItemMaxValue(v.name), v)
       } else if (v.type == 'joblevel') {
         const im = character.getJobManager()
         return this.checkCompare(im.getSkillLevel(v.name), v)
       } else if (v.type == 'chance') {
         return this.luckBasedChance(v.value, character);
+      } else if (v.type == 'skilllevel') {
+        const im = character.getSkillManager()
+        return this.checkCompare(im.getSkillLevel(v.name), v);
+      } else if (v.type == 'totaljoblevel') {
+        const im = character.getJobManager()
+        return this.checkCompare(im.totalSkillLevel(), v)
+      } else if (v.type == 'totalskilllevel') {
+        const im = character.getSkillManager()
+        return this.checkCompare(im.totalSkillLevel(), v)
       }
       return true
     }

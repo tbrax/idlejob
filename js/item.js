@@ -1,21 +1,82 @@
 import { ItemBonus } from './itembonus.js';
+import { Result } from './result.js';
 export class Item {
-    constructor(name) {
+    constructor(name, character) {
       this.name = name;
       this.displayname = name;
       this.value = 0;
       this.max = 1;
       this.useMax = false; 
+      this.useMin = true; 
       this.gain = 0;
       this.maxgain = 0;
       this.tempgain = 0;
       this.tempmaxgain = 0;
       this.gainbonus = 0;
       this.maxgainbonus = 0;
-      this.holdbonus = [];
+      this.activeBonus = null;
+      this.isActive = false;
       this.tags = [];
       this.unlocked = false;
       this.desc = '';
+      this.character = character;
+      this.marketValue = null;
+    }
+
+    setMarketValue (value) {
+      this.marketValue = value;
+    }
+
+    getMarketValue () {
+      return this.marketValue;
+    }
+
+    hasMarketValue () {
+      return this.marketValue == null;
+    }
+
+    setCanBeNegative () {
+      this.useMin = false;
+    }
+
+    getCharacter() {
+      return this.character
+    }
+
+    removeActive (character) {
+      if (this.isActive) {
+        this.isActive = false;
+        this.addActiveBonus(-1, character);
+      }
+    }
+
+    addActive (character) {
+      if (!this.isActive) {
+        this.isActive = true;
+        this.addActiveBonus(1, character);
+      }
+    }
+
+    addActiveBonus(mult, character) {    
+        if (this.activeBonus == null) {
+            return
+        }
+        this.activeBonus.setMult(mult);
+        this.activeBonus.performResultList(character);
+    }
+
+    addActiveBonusCriteria (name, type, value, criteria) {
+      if (this.activeBonus == null) {
+          this.activeBonus = new Result();
+      }
+      this.activeBonus.addItemCriteria(name, type, value, criteria);    
+    }
+
+    addActiveBonusValue (name, type, value) {
+      if (this.activeBonus == null) {
+          this.activeBonus = new Result();
+      }
+      this.activeBonus.addItemName(name, type, value);    
     }
 
     getUseMax () {
@@ -41,7 +102,7 @@ export class Item {
     checkUnlock () {
       if (!this.isUnlocked())
       {
-        if (this.value > 0) {
+        if (this.value != 0) {
           this.doUnlock();
           return true;
         }
@@ -54,14 +115,19 @@ export class Item {
       if (num % 1 != 0) {
         fixed = 1
       }
-      return `${Math.abs(num).toFixed(fixed)}`
+      if (num % 2 != 0) {
+        fixed = 2
+      }
+
+      return `${num.toFixed(fixed)}`
     }
 
     getDisplayNumberText () {
+      let tx = `${this.numformat(this.value)}`;
       if (this.getUseMax()) {
-        return `${this.numformat(this.value)} / ${this.numformat(this.getMax())}`;
+        tx = `${this.numformat(this.value)} / ${this.numformat(this.getMax())}`;
       }
-      return `${this.numformat(this.value)}`;
+      return tx;
     }
 
     displayNumber () {
@@ -79,7 +145,7 @@ export class Item {
     }
 
     getDisplayName () {
-      return this.displayname
+      return this.displayname;
     }
 
     getName () {
@@ -133,17 +199,29 @@ export class Item {
     }
 
     setValue (value) {
+      this.removeActive(this.getCharacter());
+      
       this.value = value
       if (this.useMax) {
         if (this.value > this.getMax()) {
           this.value = this.getMax();
         }
       }
-    }
 
+      if (this.useMin) {
+        if (this.value < 0) {
+          this.value = 0;
+        }
+      }
+
+      this.addActive(this.getCharacter());
+    }
+    
     gainValue (value) {
+      this.removeActive(this.getCharacter());
       const gain = this.getValue() + value;
       this.setValue(gain);
+      this.addActive(this.getCharacter());
     }
 
     getGain () {

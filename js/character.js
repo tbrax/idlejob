@@ -4,7 +4,7 @@ import { SkillManager } from './skillmanager.js';
 import { UnlockManager } from './unlockmanager.js';
 export class Character {
     constructor() {
-      this.name = 'Name';
+      this.name = 'Dennis';
       this.im = new ItemManager(this);
       this.am = new ActionManager(this, 'action');
       this.jm = new SkillManager(this, 'job');
@@ -13,6 +13,52 @@ export class Character {
       this.hoveredaction = null;
       this.hovereditem = null;
       this.hoveredskill = null;
+    }
+
+    replacer(key, value) {
+
+      // Filtering out properties
+      // if (typeof value === "string") {
+      //     return undefined;
+      // }
+      if (key === "changedValues") {
+        return undefined;
+      }
+      if (key === "changedValues") {
+        return undefined;
+      }
+      if (key === "character") {
+        return undefined;
+      }
+      if (key === "am") {
+        return undefined;
+      }
+      if (key === "jm") {
+        return undefined;
+      }
+      if (key === "sm") {
+        return undefined;
+      }
+      if (key === "um") {
+        return undefined;
+      }
+      if (key === "hoveredaction") {
+        return undefined;
+      }
+      if (key === "hovereditem") {
+        return undefined;
+      }
+      if (key === "hoveredskill") {
+        return undefined;
+      }
+      console.log(key)
+      return value;
+    }
+
+    getCharacterExport () {
+      const c = this
+      const jsonStr = JSON.stringify(c, this.replacer);
+      return jsonStr
     }
 
     numformat(num) {

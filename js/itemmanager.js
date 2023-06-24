@@ -1,25 +1,18 @@
 import { Item } from './item.js';
+import { Criteria } from './criteria.js';
 export class ItemManager {
   constructor(character) {
     this.items = []
     this.changedValues = false;
-    this.initialItems();
+    
     this.character = character;
+    this.initialItems();
   }
 
   initialItems () {
     const i0 = this.createInitialItem('cash', 'Cash', 'Makes the world go round');
+    i0.setGain(100);
     i0.doUnlock();
-
-    this.createInitialItem('trash', 'Trash', "I'm the trash man")
-
-    this.createInitialItem('paper', 'Paper', "Don't get a cut")
-
-    this.createInitialItem('glass', 'Glass', "Comes in both solid and shard form")
-
-    this.createInitialItem('cardboard', 'Cardboard', 'You can make a house')
-
-    this.createInitialItem('plastic', 'Plastic', 'Stored in your bloodstream')
 
     this.createInitialItem('soap', 'Soap', 'Slippery')
 
@@ -28,7 +21,74 @@ export class ItemManager {
     this.createInitialItem('secret', 'Secret', "It's a secret to everybody")
     this.createInitialItem('wood', 'Wood', "Yep, thats wood")
     const i1 = this.createInitialItem('joboffer', 'Job Offer', "No experience required")
-    i1.setMax(1)
+    i1.setMax(1);
+    this.initialItem0();
+    this.initialItem1();
+    this.initialItem2();
+    this.initialItem3();
+    this.initialItem4();
+    this.initialItem5();
+  }
+
+  initialItem5 () {
+    this.createInitialItem('space', 'Space', "There's nothing here...")
+    this.createInitialItem('land', 'Land', 'The open range');
+    this.createInitialItem('building', 'Building', 'An empty building');
+  }
+
+  initialItem4 () {
+    const a = this.createInitialItem('luck', 'Luck', 'Are you feeling lucky, punk?')
+    a.setCanBeNegative();
+    this.createInitialItem('jobexpbonus', 'Job Exp Bonus', 'Gain more Job Exp')
+    this.createInitialItem('skillexpbonus', 'Skill Exp Bonus', 'Gain more Skill Exp')
+    const b = this.createInitialItem('beauty', 'Beauty', 'Quite the looker')
+    b.setCanBeNegative();
+  }
+
+  initialItem3 () {
+    const a = this.createInitialItem('karma', 'Karma', 'How is your fortune?')
+    a.setCanBeNegative();
+
+    const i = this.createInitialItem('legaltrouble', 'Legal Trouble', 'May be best to lay low for a bit')
+    i.setMax(10);
+    i.setGain(-0.005);
+  }
+
+  initialItem2 () {
+    const i2 = this.createInitialItem('trash', 'Trash', "I'm the trash man")
+    i2.setMax(10);
+    const i3 = this.createInitialItem('paper', 'Paper', "Don't get a cut")
+    i3.setMax(10);
+    const i4 = this.createInitialItem('glass', 'Glass', "Comes in both solid and shard form")
+    i4.setMax(10);
+    const i5 = this.createInitialItem('cardboard', 'Cardboard', 'You can make a house')
+    i5.setMax(10);
+    const i6 = this.createInitialItem('plastic', 'Plastic', 'Easily storable in your bloodstream')
+    i6.setMax(10);
+
+  }
+
+  initialItem1 () {
+    this.createInitialItem('seeds', 'Seeds', 'What will it grow into?');
+    this.createInitialItem('information', 'Information', 'Priceless');
+    this.createInitialItem('gold', 'Gold', "Thems gold in 'thar hills!");
+    this.createInitialItem('tools', 'Tools', "Of all kinds");
+  }
+
+  initialItem0 () {
+    const i1 = this.createInitialItem('rats', 'Rat', "MICHAEL it's your birthday today!");
+    i1.setMax(10);
+
+    const cr = new Criteria();
+    cr.addScaleName('rats', 'itemvalue', 0.01);
+    i1.addActiveBonusCriteria("trash", "gainvalue", 0.0, cr);
+
+
+    const i0 = this.createInitialItem('pigeon', 'Pigeon', "Close your mouth when you look up");
+    i0.setMax(10);
+    const cr0 = new Criteria();
+    cr0.addScaleName('pigeon', 'itemvalue', 0.01);
+    i0.addActiveBonusCriteria("information", "gainvalue", 0.0, cr);
   }
 
   createInitialItem (name, displayname, desc) {
@@ -47,7 +107,19 @@ export class ItemManager {
 
   getItemValue (name) {
     const item = this.findItemByName(name);
+    if (item == null) {
+      return 0;
+    }
     const itemvalue = item.getValue();
+    return itemvalue;
+  }
+
+  getItemMaxValue (name) {
+    const item = this.findItemByName(name);
+    if (item == null) {
+      return 0;
+    }
+    const itemvalue = item.getMax();
     return itemvalue;
   }
 
@@ -135,6 +207,8 @@ export class ItemManager {
       item.gainValue(result.value);
     } else if (type == "gainvalue") {
       item.gainGainValue(result.value);
+    } else if (type == "itemmaxvalue") {
+      item.gainMax(result.value);
     }
   }
   
@@ -216,7 +290,7 @@ export class ItemManager {
   }
 
   createItem (name, display, desc) {
-    const i = new Item(name);
+    const i = new Item(name, this.getCharacter());
     i.setDisplayName(display);
     i.setDesc(desc);
     return i;

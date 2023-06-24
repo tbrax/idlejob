@@ -34,15 +34,27 @@ export class Result {
       return row.criteria.getTotalChance(character);
     }
     
-    numformat(num) {
+    numformat(num, isCost=false) {
       let fixed = 0;
-      if (num % 1 != 0) {
+      if (Math.abs(num) < 1) {
         fixed = 1
       }
-      return `${Math.abs(num).toFixed(fixed)}`
+      if (Math.abs(num) < 0.1) {
+        fixed = 2
+      }
+      if (Math.abs(num) < 0.01) {
+        fixed = 3
+      }
+      if (Math.abs(num) < 0.001) {
+        fixed = 4
+      }
+      if (isCost) {
+        return `${Math.abs(num).toFixed(fixed)}`
+      }
+      return `${num.toFixed(fixed)}`
     }
 
-    getResultRowDisplayName (i, character) {
+    getResultRowDisplayName (i, character, isCost=false) {
       let newResultRow = this.getPerformCopy(i);
 
       this.addScaling(newResultRow, newResultRow.criteria, character);
@@ -53,16 +65,16 @@ export class Result {
       }
       if (newResultRow.type == "itemvalue") {
         const im = character.getItemManager()
-        return `${this.numformat(newResultRow.value)} ${im.getDisplayName(newResultRow.name)} ${add}`;
+        return `${this.numformat(newResultRow.value, isCost)} ${im.getDisplayName(newResultRow.name)} ${add}`;
       } else if (newResultRow.type == "skillexp") {
         const m = character.getSkillManager()
-        return `${this.numformat(newResultRow.value)} ${m.getDisplayName(newResultRow.name)} SXP`;
+        return `${this.numformat(newResultRow.value, isCost)} ${m.getDisplayName(newResultRow.name)} SXP`;
       } else if (newResultRow.type == "jobexp") {
         const m = character.getJobManager()
-        return `${this.numformat(newResultRow.value)} ${m.getDisplayName(newResultRow.name)} JXP`;
+        return `${this.numformat(newResultRow.value, isCost)} ${m.getDisplayName(newResultRow.name)} JXP`;
       } else if (newResultRow.type == "gainvalue") {
         const im = character.getItemManager()
-        return `${this.numformat(newResultRow.value)} ${im.getDisplayName(newResultRow.name)} /s`;
+        return `${this.numformat(newResultRow.value, isCost)} ${im.getDisplayName(newResultRow.name)} /s`;
       } else if (newResultRow.type == "special") {
         return newResultRow.desc;
       } else if (newResultRow.type == "unlockjob") {
@@ -74,6 +86,9 @@ export class Result {
       } else if (newResultRow.type == "unlockaction") {
         const m = character.getActionManager()
         return `Unlock ${m.getDisplayName(newResultRow.name)}`;
+      } else if (newResultRow.type == "itemmaxvalue") {
+        const im = character.getItemManager()
+        return `${this.numformat(newResultRow.value, isCost)} MAX ${im.getDisplayName(newResultRow.name)}`;
       }
 
       return `${this.numformat(newResultRow.value)} ${newResultRow.name}`;
@@ -81,7 +96,7 @@ export class Result {
 
     performSingleResult (resultRow, character) {
       const type = resultRow.type;
-      if (type == "itemvalue" || type == "gainvalue") {
+      if (type == "itemvalue" || type == "gainvalue" || type == "itemmaxvalue") {
         const im = character.getItemManager();
         im.itemAction(resultRow)
       } else if (type == "skillexp") {
@@ -122,7 +137,6 @@ export class Result {
         const criteria = rsm.criteria;
         let newResult = this.getPerformCopy(i);
         this.addScaling(newResult, criteria, character)
-
         if (criteria != null) {
           if (criteria.metCriteria(character))
           {

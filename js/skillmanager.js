@@ -11,8 +11,44 @@ export class SkillManager {
 
     initialJobs () {
       this.initialJob0();
-
       this.initialJob1();
+      this.initialJob2();
+      this.initialJob3();
+      this.initialJob4();
+    }
+
+    initialJob4() {
+      const a1 = this.createSkill('dishwasher', 'Dish Washer', 'Scrape your plate');
+      const cr = new Criteria();
+      cr.addScaleName('dishwasher', 'joblvl', 0.1);
+      a1.addActiveBonusCriteria("soap", "gainvalue", 0.0, cr);  
+      a1.setLevel(1);
+      this.addSkill(a1);
+    }
+
+    initialJob3() {
+      const a1 = this.createSkill('collegestudent', 'College Student', 'Teach Yourself');
+      const cr = new Criteria();
+      cr.addScaleName('collegestudent', 'joblevel', 1);
+      a1.addActiveBonusCriteria("skillexpbonus", "itemvalue", 0.0, cr);  
+      a1.setLevel(1);
+      a1.doUnlock(1);
+      this.addSkill(a1);
+    }
+
+    initialJob2() {
+      const a1 = this.createSkill('pickpocket', 'Pickpocket', 'Yoink!');
+      const cr = new Criteria();
+      cr.addScaleName('pickpocket', 'joblevel', -0.001);
+      a1.addActiveBonusCriteria("legaltrouble", "gainvalue", 0.0, cr);  
+      a1.setLevel(1);
+      // a1.setUnlockValue("coordination", "skilllevel", 1, ">=");
+      //const cr = new Criteria();
+      // cr.addScaleName('pickpocket', 'joblevel', 0.1);
+      // a1.addActiveBonusCriteria("soap", "gainvalue", 0.0, cr); 
+
+      a1.doUnlock(1);
+      this.addSkill(a1);
     }
 
     initialJob1() {
@@ -35,20 +71,49 @@ export class SkillManager {
     }
 
     initialSkills () {
-      this.createInitialSkill('streetsmarts', 'Street Smarts', '');
+      this.initialSkills0();
+      this.initialSkills1();
+      this.initialSkills3();
+      this.initialSkills4();
+      this.initialSkills5();
+    }
 
-      this.createInitialSkill('speech', 'Speech', 'Me talk good');
-
-      this.createInitialSkill('coordination', 'Coordination', 'Eye on the ball');
-
-      this.createInitialSkill('clean', 'Clean', 'Everyone should probably know how to do this');
-
-      this.createInitialSkill('liquid', 'Liquid', "Hydroengineering sounds a bit too pretentious");
-
+    initialSkills5() {
       this.createInitialSkill('woodworking', 'Woodworking', "Express yourself");
-
       this.createInitialSkill('treecutting', 'Tree Cutting', "My favorite part is the chainsaw");
+      this.createInitialSkill('construction', 'Construction', "Can we build it? Yes we can!");
+      this.createInitialSkill('welding', 'Welding', "You get extra cool sunglasses");
+    }
+
+    initialSkills4() {
+      this.createInitialSkill('speech', 'Speech', 'Me talk good');
+      this.createInitialSkill('culture', 'Culture', 'Learn about the world');
+      this.createInitialSkill('language', 'Language', 'Hello. Hola. Bonjour. Nǐ hǎo.');
+    }
+
+    initialSkills3() {
+      this.createInitialSkill('math', 'Math', "Knowing this is a big plus");
+      this.createInitialSkill('finance', 'Finance', 'The numbers crunch in your favor');
+    }
+
+    initialSkills1() {
+      this.createInitialSkill('medical', 'Medical', "It's mostly just remembering funny words");
+      this.createInitialSkill('biology', 'Biology', "Study of the Flesh");
+      this.createInitialSkill('chemistry', 'Chemistry', "You can practice by mixing soda");
+    }
+
+    initialSkills0() {
+      this.createInitialSkill('streetsmarts', 'Street Smarts', "Also known as 'Avenue Astuteness', 'Boulevard Brilliance', and 'Road Resourcefulness'");
+      this.createInitialSkill('law', 'Law', 'Bend and break it to your will');
+      this.createInitialSkill('coordination', 'Coordination', 'Eye on the ball');
+      this.createInitialSkill('clean', 'Clean', 'Everyone should probably know how to do this');
+      this.createInitialSkill('liquid', 'Liquid', "Hydroengineering sounds a bit too pretentious");
       this.createInitialSkill('animals', 'Animals', "Chicken go CLUCK CLUCK, cow go MOO, piggy go OINK OINK how 'bout you?");
+      this.createInitialSkill('supernatural', 'Supernatural', "Look deeper");
+      this.createInitialSkill('aliens', 'Aliens', "The truth is out there");
+      this.createInitialSkill('darkness', 'Darkness', "I was born in the darkness");
+      this.createInitialSkill('light', 'Light', "Don't look directly at it");
+      this.createInitialSkill('crime', 'Crime', "Do a crime");
     }
 
     createInitialSkill(name, displayname, desc) {
@@ -94,6 +159,14 @@ export class SkillManager {
       return level;
     }
 
+    totalSkillLevel () {
+      let total = 0;
+      for (let i = 0; i < this.skills.length; i++) {
+        total += this.skills[i].getLevel();
+      }
+      return total;
+    }
+
     createSkill (name, display, desc='') {
         const a = new Skill(name, this.getType(), this.getCharacter());
         a.setDisplayName(display);
@@ -122,6 +195,12 @@ export class SkillManager {
       return i.getDisplayName();
     }
 
+    getGlobalSkillExpBonus () {
+      const im = this.getCharacter().getItemManager()
+      const valu = im.getItemValue("skillexpbonus")
+      return 1 + (valu/100);
+    }
+
     itemAction (result) {
         const skill = this.findSkillByName(result.name);
         const type = result.type;
@@ -133,7 +212,7 @@ export class SkillManager {
             skill.doWantUnlock();
             this.checkAllUnlocks();
           }
-          skill.gainExp(result.value);
+          skill.gainExp(result.value * this.getGlobalSkillExpBonus());
         } else if (type == "jobexp") {
           skill.gainExp(result.value);
       }

@@ -17,6 +17,7 @@
       
 <body>
     <!-- <div id="includeItemDisplay"></div> -->
+    <button id="saveButton" type="button">Save</button> <button id="loadButton" type="button">Load</button> 
     <div class="gridWrapper">
         <div class="gridone" id="itemdisplay">
         </div>
@@ -42,6 +43,10 @@
         </div>
         <div class="grideight" id="unlockdisplay">
             Unlocks
+        </div>
+
+        <div class="gridnine" id="marketdisplay">
+            Market Info
         </div>
     </div>
     <div id="tooltipdiv" class="tooltipdiv" style="position: fixed;display:none;">
@@ -88,9 +93,6 @@
             </div>
         </div>
     </div>
-    <span onmouseover="hoverdiv(event,'tooltipdiv')" 
-    onmouseout="hoverdiv(event,'tooltipdiv')">
-    Mouse over this</span>
      
     <script type="module">
         import {main} from './js/main.js';

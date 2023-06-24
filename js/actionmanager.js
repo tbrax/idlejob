@@ -3,8 +3,7 @@ import { Result } from './result.js';
 import { Criteria } from './criteria.js';
 export class ActionManager {
     constructor(c, type) {
-      this.actions = [];
-      
+      this.actions = [];  
       this.character = c;
       this.usingactions = [];
       this.actionqueue = [];
@@ -30,14 +29,74 @@ export class ActionManager {
       this.addUnlock1();
       this.addUnlock2();
       this.addUnlock3();
+      this.addUnlock4();
+      this.addUnlock5();
+      this.addUnlock6();
+    }
+
+    addUnlock7 () { 
+      const a = this.createUnlock('becomejobbutler', 'Become Butler', "");
+      a.setUnlockValue("joboffer", "itemmaxvalue", 2, ">=");
+      a.setResultValue("collegestudent", "unlockjob", 0);
+      this.addAction(a);
+    }
+
+    addUnlock6 () { 
+      const a = this.createUnlock('becomejobcollegestudent', 'Become College Student', "");
+      a.setUnlockValue("joboffer", "itemmaxvalue", 2, ">=");
+      a.setResultValue("collegestudent", "unlockjob", 0);
+      this.addAction(a);
+    }
+
+    addUnlock5 () { 
+      const a5 = this.createUnlock('improveresume', 'Improve Resume', "Get better job offers with this");
+      a5.setResultValue("joboffer", "itemmaxvalue", 1);
+      a5.setCostValue("cash", "itemvalue", -1);
+      a5.setUnlockValue("totaljoblevel", "totaljoblevel", 3, ">=");
+      this.addAction(a5);
+    }
+   
+    addUnlock4 () { 
+      const a = this.createUnlock('becomejobpickpocket', 'Become Pickpocket', "The streets raised me. The gutter was my uncle. My cousin was that lamp.");
+      // a.setResultValueSpecial("Special text", "special", 1000, 'Make all the rules');
+      a.setResultValue("pickpocket", "unlockjob", 0);
+      a.setCostValue("joboffer", "itemvalue", -1);
+      a.setUnlockValue("coordination", "skilllevel", 1, ">=");
+      // a2.setUnlockValue("trash", "itemvalue", 1, ">=");
+      this.addAction(a);
     }
 
     addUnlock3 () { 
-      const a = this.createUnlock('denizensofthecity', 'Denizens of the city', "Call various animals to your side");
+      const a = this.createUnlock('denizensofthecity', 'Denizens of the City', "Call various animals to your side");
       // a.setResultValueSpecial("Special text", "special", 1000, 'Make all the rules');
       a.setResultValue("trainrat", "unlockaction", 0);
-      a.setCostValue("trash", "itemvalue", -20);
+      a.setResultValue("trainpigeon", "unlockaction", 0);
+      a.setUnlockValue("hobo", "joblevel", 1, ">=");
+      a.setCostValue("trash", "itemvalue", -10);
       this.addAction(a);
+
+      const a2 = this.createUnlock('cardboardhouse', 'Cardboard House', "Just watch for rain");
+      a2.setResultValue("space", "itemvalue", 10);
+      a2.setCostValue("cardboard", "itemvalue", -10);
+      a2.setUnlockValue("hobo", "joblevel", 1, ">=");
+      this.addAction(a2);
+
+      const a3 = this.createUnlock('trashcan', 'Trash Can', "A fine receptacle");
+      a3.setResultValue("trash", "itemmaxvalue", 20);
+      a3.setUnlockValue("hobo", "joblevel", 1, ">=");
+      this.addAction(a3);
+
+      const a4 = this.createUnlock('ratking', 'Rat King', "I'm the giant rat that makes all the rules");
+      a4.setResultValue("rats", "itemmaxvalue", 20);
+      a4.setCostValue("trash", "itemvalue", -1);
+      a4.setUnlockValue("hobo", "joblevel", 1, ">=");
+      this.addAction(a4);
+
+      const a5 = this.createUnlock('rooftopcoop', 'Rooftop Coop', "You can really feel the wind 7 stories up");
+      a5.setResultValue("pigeon", "itemmaxvalue", 20);
+      a5.setCostValue("trash", "itemvalue", -1);
+      a5.setUnlockValue("hobo", "joblevel", 1, ">=");
+      this.addAction(a5);
     }
 
     addUnlock2 () { 
@@ -80,14 +139,82 @@ export class ActionManager {
       this.addAction8();
       this.addAction9();
       this.addAction10();
+      this.addAction11();
+      this.addAction12();
+      this.addAction13();
+      this.addAction14();
+      this.addAction15();
       // a4 = this.createAction('powerwash', 'Power Wash');
       // a4.setResultValue("cash", "itemvalue", 1);
     }
 
+    addAction15 () { 
+      const a = this.createAction('studyshop', 'Shop Class', "Work with your hands");
+      a.setResultValue("construction", "skillexp", 10);
+      a.setResultValue("woodworking", "skillexp", 10);
+      a.setResultValue("welding", "skillexp", 10);
+      a.setUnlockValue("collegestudent", "joblevel", 1, ">=");
+      a.setResultValue("collegestudent", "jobexp", 1);
+      a.setCostValue("cash", "itemvalue", -50);
+      this.addAction(a);
+    }
+
+    addAction14 () { 
+      const a = this.createAction('studysocial', 'Social Studies Class', "Learn about social");
+      a.setResultValue("speech", "skillexp", 10);
+      a.setResultValue("culture", "skillexp", 10);
+      a.setResultValue("language", "skillexp", 10);
+      a.setUnlockValue("collegestudent", "joblevel", 1, ">=");
+      a.setResultValue("collegestudent", "jobexp", 1);
+      a.setCostValue("cash", "itemvalue", -50);
+      this.addAction(a);
+    }
+
+    addAction13 () { 
+      const a = this.createAction('studyscience', 'Science Class', "Learn about science");
+      a.setResultValue("biology", "skillexp", 10);
+      a.setResultValue("chemistry", "skillexp", 10);
+      a.setUnlockValue("collegestudent", "joblevel", 1, ">=");
+      a.setResultValue("collegestudent", "jobexp", 1);
+      a.setCostValue("cash", "itemvalue", -50);
+      this.addAction(a);
+    }
+
+    addAction12 () { 
+      const a = this.createAction('bribe', 'Bribe', "Mr. Green says I ain't done nothing");
+      a.setResultValue("legaltrouble", "itemvalue", -10);
+      a.setResultValue("speech", "skillexp", 1);
+      a.setResultValue("finance", "skillexp", 1);
+      a.setResultValue("law", "skillexp", 1);
+      a.setUnlockValue("legaltrouble", "itemvalue", 1, ">=");
+      a.setCostValue("cash", "itemvalue", -50);
+      this.addAction(a);
+    }
+
+    addAction11 () { 
+      const a = this.createAction('pickpocketskill', 'Pick Pocket', "Good thing wallet chains are out of style");
+      a.setResultValue("karma", "itemvalue", -0.01);
+      a.setResultValue("legaltrouble", "itemvalue", 0.1);
+      a.setResultValueChance("cash", "itemvalue", 10, 0.6);
+      a.setResultValue("coordination", "skillexp", 1);
+      a.setResultValue("streetsmarts", "skillexp", 1);
+      a.setResultValue("crime", "skillexp", 1);
+      a.setUnlockValue("pickpocket", "joblevel", 1, ">=");
+      this.addAction(a);
+    }
+
     addAction10 () { 
       const a = this.createAction('trainrat', 'Train Rat', "His name is squeaks");
-      a.setResultValue("cash", "itemvalue", 1);
+      a.setResultValue("animals", "skillexp", 10);
+      a.setResultValue("rats", "itemvalue", 1);
+      // a.setUnlockValue("hobo", "joblevel", 1, ">=");
       this.addAction(a);
+
+      const a2 = this.createAction('trainpigeon', 'Train Pigeon', "His name is splats");
+      a2.setResultValue("pigeon", "itemvalue", 1);
+      a2.setResultValue("animals", "skillexp", 10);
+      // a2.setUnlockValue("hobo", "joblevel", 1, ">=");
+      this.addAction(a2);
     }
 
     addAction9 () { 
@@ -123,9 +250,10 @@ export class ActionManager {
 
     addAction1 () { 
       const a = this.createAction('panhandle', 'Panhandle', "You'll do what you have to");
-      a.setResultValue("cash", "itemvalue", 0.5);
-      a.setResultValue("speech", "skillexp", 0.1);
+      a.setResultValue("cash", "itemvalue", 0.3);
+      a.setResultValue("speech", "skillexp", 1);
       a.setResultValue("hobo", "jobexp", 1);
+      a.setUnlockValue("hobo", "joblevel", 1, ">=");
       this.addAction(a);
     }
 
@@ -135,7 +263,7 @@ export class ActionManager {
       a0.setResultValue("streetsmarts", "skillexp", 10);
       a0.setResultValue("coordination", "skillexp", 10);
       // const a01 = new Criteria();
-      // a01.addScaleName('hobo', 'joblvl', 1);
+      // a01.addScaleName('hobo', 'joblevel', 1);
       // a0.setResultValueCriteria("speed", "speed", 1, null);
       this.addAction(a0);
     }
@@ -148,28 +276,31 @@ export class ActionManager {
       a3.setResultValueCriteria("trash", "itemvalue", 1, cr3);
       const cr31 = new Criteria();
       cr31.addItemName('chance', 'chance', 0.1);
-      cr31.addScaleAdd('hobo', 'joblvl', 0.1, 'chance');
+      cr31.addScaleAdd('hobo', 'joblevel', 0.1, 'chance');
       a3.setResultValueCriteria("trash", "itemvalue", 1, cr31);
 
-      const c1 = new Criteria();
-      c1.addItemName("hobo", "joblevel", 2, ">="); 
-      c1.addItemName('chance', 'chance', 0.1);
-      a3.setResultValueCriteria("secret", "itemvalue", 1, c1);
+      // const c1 = new Criteria();
+      // c1.addItemName("hobo", "joblevel", 2, ">="); 
+      // c1.addItemName('chance', 'chance', 0.1);
+      // a3.setResultValueCriteria("secret", "itemvalue", 1, c1);
+
       a3.setUnlockValue("hobo", "joblevel", 1, ">=");
       this.addAction(a3);
     }
 
     addAction4 () {
-      const a2 = this.createAction('digtrash', 'Seperate Trash', '');
+      const a2 = this.createAction('digtrash', 'Seperate Trash', "Let's Find out what's in here");
       a2.setResultValueChance("paper", "itemvalue", 1, 0.5);
       a2.setResultValueChance("plastic", "itemvalue", 1, 0.5);
       a2.setResultValueChance("cardboard", "itemvalue", 1, 0.5);
       a2.setResultValueChance("cash", "itemvalue", 1, 0.1);
-      a2.setCostValue("trash", "itemvalue", -1);
-      a2.setResultValue("hobo", "jobexp", 20);
-      a2.setResultValue("coordination", "skillexp", 1);
+      a2.setCostValue("trash", "itemvalue", -5);
+
+      a2.setResultValue("hobo", "jobexp", 2);
+      a2.setResultValue("coordination", "skillexp", 10);
+
       a2.setUnlockValue("trash", "itemvalue", 1, ">=");
-      a2.setUnlockValue("hobo", "joblevel", 1, ">=");
+      // a2.setUnlockValue("hobo", "joblevel", 1, ">=");
       this.addAction(a2);
     }
 
@@ -179,7 +310,7 @@ export class ActionManager {
 
       a4.setResultValue("dishwasher", "jobexp", 1);
       const a4c = new Criteria();
-      a4c.addScaleName('dishwasher', 'joblvl', 0.1);
+      a4c.addScaleName('dishwasher', 'joblevel', 0.1);
       a4.setResultValueCriteria("cash", "itemvalue", 1, a4c);
       this.addAction(a4);
     }
@@ -474,9 +605,9 @@ export class ActionManager {
     }
 
     createHandler (name, thisclass) {
-        return function () {
-          thisclass.checkPerformAction(name);
-        };
+      return function () {
+        thisclass.checkPerformAction(name);
+      };
     }
 
     getDisplayType () {
@@ -505,7 +636,7 @@ export class ActionManager {
           for (let i = 0; i < costList.length; i++) {
             const rs = costList[i];
             const rsDiv = document.createElement("li");
-            rsDiv.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
+            rsDiv.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter(), true);
             listEle.appendChild(rsDiv);
           }
         }
@@ -544,7 +675,7 @@ export class ActionManager {
           for (let i = 0; i < costList.length; i++) {
             const costRow = document.createElement("li"); 
             costRow.id = 'actioncostrow' + i;
-            costRow.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
+            costRow.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter(), true);
             tc.appendChild(costRow);
           }
         } else {
@@ -625,7 +756,7 @@ export class ActionManager {
             const resultrow = costList[i]
             const rowDiv = document.getElementById('' + this.getTooltipType() + 'costrow' + i);
             if (rowDiv != null) {
-              rowDiv.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter());
+              rowDiv.innerHTML = cost.getResultRowDisplayName(i, this.getCharacter(), true);
               const havecost = action.checkHaveResultRow(resultrow)
               if (havecost) {
                 rowDiv.classList.remove("redtext");

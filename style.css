@@ -14,7 +14,7 @@ body {
     }
 
     .flexleft {
-        width: 50%;
+        width: 70%;
     }
 
     .flexright {
@@ -93,6 +93,14 @@ body {
 
     .grideight {
         grid-column: 2;
+        grid-row: 3;
+        border: solid blue;
+        padding: 5px;
+        margin: 5px;
+    }
+
+    .gridnine {
+        grid-column: 3;
         grid-row: 3;
         border: solid blue;
         padding: 5px;
