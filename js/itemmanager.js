@@ -105,12 +105,51 @@ export class ItemManager {
     this.getCharacter().hovertooltipdiv(e, item)
   }
 
+  getItemMarketValue (name) {
+    if (name == 'cash') {
+      return 1
+    }
+
+    const item = this.findItemByName(name);
+    if (item == null) {
+      return 0;
+    }
+    const itemvalue = item.getMarketValue();
+    return itemvalue;
+  }
+
+  addItemValue (name, value) {
+    const item = this.findItemByName(name);
+    if (item == null) {
+      return;
+    }
+    item.gainValue(value);
+  }
+
   getItemValue (name) {
     const item = this.findItemByName(name);
     if (item == null) {
       return 0;
     }
     const itemvalue = item.getValue();
+    return itemvalue;
+  }
+
+  getCashValue () {
+    const item = this.findItemByName('cash');
+    if (item == null) {
+      return 0;
+    }
+    const itemvalue = item.getValue();
+    return itemvalue;
+  }
+
+  getItemSpace (name) {
+    const item = this.findItemByName(name);
+    if (item == null) {
+      return -1;
+    }
+    const itemvalue = item.getSpace();
     return itemvalue;
   }
 
@@ -213,13 +252,13 @@ export class ItemManager {
   }
   
   addItems () {
-      for (let i = 0; i < this.items.length; i++) {
-        const item = this.items[i];
-        if (item.isUnlocked()) {
-          const newItem = this.itemElement(this.items[i]);
-          $("#itemdisplay").append(newItem);
-        }
-      } 
+    for (let i = 0; i < this.items.length; i++) {
+      const item = this.items[i];
+      if (item.isUnlocked()) {
+        const newItem = this.itemElement(this.items[i]);
+        $("#itemdisplay").append(newItem);
+      }
+    } 
   }
 
   addItem (item) {
@@ -250,16 +289,67 @@ export class ItemManager {
     d.innerHTML = item.getDesc();
   }
 
+  remakeTooltipInfo (item) {
+    const d = document.getElementById('tooltipitemgain');
+    d.innerHTML = item.getDisplayGain();  
+  }
+
   remakeTooltipCost (item) {
     this.remakeTooltipName(item);
+    this.remakeTooltipInfo(item);
+  }
+
+  getHoveredType () {
+    return this.getCharacter().getHoveredType()
+  }
+
+  getMarket () {
+    return this.getCharacter().getMarket()
+  }
+
+  remakeTooltipMarketTextBuy (item) {
+    const d = document.getElementById('tooltipitemgain');
+    d.innerHTML = this.getMarket().marketTooltipTextBuy(item)
+  }
+
+  remakeTooltipMarketTextSell (item) {
+    const d = document.getElementById('tooltipitemgain');
+    d.innerHTML = this.getMarket().marketTooltipTextSell(item)
+  }
+
+  remakeTooltipMarketBuy (item) {
+    this.remakeTooltipName(item);
+    this.remakeTooltipMarketTextBuy(item)
+  }
+
+  remakeTooltipMarketSell (item) {
+    this.remakeTooltipName(item);
+    this.remakeTooltipMarketTextSell(item)
   }
 
   remakeTooltip () {
     if (this.getHoveredItem() != null) {
-      const item = this.findItemByName(this.getHoveredItem())
-      if (item != null) {
-        this.remakeTooltipCost(item);
+      if (this.getHoveredType() == 'item') {
+        const item = this.findItemByName(this.getHoveredItem())
+        if (item != null) {
+          this.remakeTooltipCost(item);
+        }
       }
+
+      if (this.getHoveredType() == 'marketitembuy') {
+        const item = this.findItemByName(this.getHoveredItem())
+        if (item != null) {
+          this.remakeTooltipMarketBuy(item);
+        }
+      }
+
+      if (this.getHoveredType() == 'marketitemsell') {
+        const item = this.findItemByName(this.getHoveredItem())
+        if (item != null) {
+          this.remakeTooltipMarketSell(item);
+        }
+      }
+
     }
   }
 
@@ -268,6 +358,7 @@ export class ItemManager {
   }
 
   setHoveredItem (name) {
+    this.getCharacter().setHoveredType('item');
     this.getCharacter().setHoveredItem(name);
   }
 

@@ -537,8 +537,10 @@ export class ActionManager {
     }
 
     updateQueueText () {
-      const tx = this.queueText();
-      $('#actionqueuetext')[0].innerHTML = tx;
+      if (this.type == 'action') {
+        const tx = this.queueText();
+        $('#actionqueuetext')[0].innerHTML = tx;
+      }
     }
 
     checkQueue () {

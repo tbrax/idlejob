@@ -20,14 +20,40 @@ export class Item {
       this.unlocked = false;
       this.desc = '';
       this.character = character;
-      this.marketValue = null;
+      this.marketValue = 10;
+      this.marketable = false;
+    }
+
+    isMarketable () {
+      if (this.getName() == 'cash') {
+        return false;
+      }
+
+      if (!this.marketable) {
+        return false
+      }
+
+      return this.getMarketValue() != 0;
+    }
+
+    getSpace () {
+      if (!this.useMax) {
+        return -1
+      }
+      return this.getMax() - this.getValue() 
     }
 
     setMarketValue (value) {
       this.marketValue = value;
+      if (value > 0) {
+        this.marketable = true;
+      }
     }
 
     getMarketValue () {
+      if (this.getName() == 'cash') {
+        return 1
+      }
       return this.marketValue;
     }
 
@@ -111,15 +137,7 @@ export class Item {
     }
 
     numformat(num) {
-      let fixed = 0;
-      if (num % 1 != 0) {
-        fixed = 1
-      }
-      if (num % 2 != 0) {
-        fixed = 2
-      }
-
-      return `${num.toFixed(fixed)}`
+      return this.getCharacter().numformat(num)
     }
 
     getDisplayNumberText () {
@@ -199,8 +217,13 @@ export class Item {
     }
 
     setValue (value) {
-      this.removeActive(this.getCharacter());
-      
+      if (value == NaN || value == null || value == undefined) {
+        value = 0
+      }
+      if (isNaN(value)) {
+        value = 0
+      }
+      this.removeActive(this.getCharacter());    
       this.value = value
       if (this.useMax) {
         if (this.value > this.getMax()) {
@@ -218,6 +241,12 @@ export class Item {
     }
     
     gainValue (value) {
+      if (value == NaN || value == null || value == undefined) {
+        value = 0
+      }
+      if (isNaN(value)) {
+        value = 0
+      }
       this.removeActive(this.getCharacter());
       const gain = this.getValue() + value;
       this.setValue(gain);
@@ -226,6 +255,11 @@ export class Item {
 
     getGain () {
       return this.gain;
+    }
+
+    getDisplayGain () {
+      const g = this.numformat(this.getGain()) + '/s'
+      return g
     }
 
     setGain (value) {

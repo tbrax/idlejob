@@ -2,6 +2,7 @@ import { ItemManager } from './itemmanager.js';
 import { ActionManager } from './actionmanager.js';
 import { SkillManager } from './skillmanager.js';
 import { UnlockManager } from './unlockmanager.js';
+import { Market } from './market.js';
 export class Character {
     constructor() {
       this.name = 'Dennis';
@@ -13,14 +14,30 @@ export class Character {
       this.hoveredaction = null;
       this.hovereditem = null;
       this.hoveredskill = null;
+      this.hoveredtype = '';
+      this.mk = new Market(this);
+    }
+
+    getMarket () {
+      return this.mk
+    }
+
+    getHoveredType () {
+      return this.hoveredtype
+    }
+
+    setHoveredType (set) {
+      this.hoveredtype = set
     }
 
     replacer(key, value) {
-
       // Filtering out properties
       // if (typeof value === "string") {
       //     return undefined;
       // }
+      if (key === "marketTime") {
+        return undefined;
+      }
       if (key === "changedValues") {
         return undefined;
       }
@@ -51,7 +68,6 @@ export class Character {
       if (key === "hoveredskill") {
         return undefined;
       }
-      console.log(key)
       return value;
     }
 
@@ -63,10 +79,38 @@ export class Character {
 
     numformat(num) {
       let fixed = 0;
-      if (num % 1 != 0) {
-        fixed = 1
+      const numA = Math.abs(num)
+      if (numA < 1) {
+        if (numA % 1 != 0) {
+          fixed = 1
+        }
       }
-      return `${Math.abs(num).toFixed(fixed)}`
+
+      if (numA < 0.1) { 
+        if (numA % 2 != 0) {
+          fixed = 2
+        }
+      }
+
+      if (numA < 0.01) { 
+        if (numA % 3 != 0) {
+          fixed = 3
+        }
+      }
+
+      if (numA < 0.001) { 
+        if (numA % 4 != 0) {
+          fixed = 4
+        }
+      }
+
+      // if (num < 0.0001) { 
+      //   if (num % 5 != 0) {
+      //     fixed = 5
+      //   }
+      // }
+
+      return `${num.toFixed(fixed)}`
     }
 
     specialResult (result) {
@@ -128,8 +172,6 @@ export class Character {
       d.innerHTML = '';
     }
 
-
-
     showTooltipTypes (type) {
       const t0 = document.getElementById('tooltipaction');     
       const t1 = document.getElementById('tooltipitem');
@@ -158,10 +200,33 @@ export class Character {
       }
     }
 
-    hoverdiv(e, divid, item){
+    getOffset(el) {
+      const rect = el.getBoundingClientRect();
+      return {
+        right: rect.right + window.scrollX,
+        left: rect.left + window.scrollX,
+        top: rect.top + window.scrollY
+      };
+    }
+
+    hoverdiv(e, divid, item, element=null){
       var left  = (e.clientX + 5)  + "px";
       var top  = (e.clientY + 5)  + "px";       
-      var div = document.getElementById(divid);     
+      var div = document.getElementById(divid);
+      if (element != null) {
+        // var rect = element.getBoundingClientRect();
+        const eleLeft = this.getOffset(element).left
+        let wantedX = (eleLeft + element.offsetWidth + 5)
+        
+        const swidth = screen.width;
+        const check = (wantedX + 200 + 50)
+
+        if (check > swidth) {
+          wantedX = (eleLeft) - 200 - element.offsetWidth
+        }
+        left = wantedX + "px"
+        top = (this.getOffset(element).top) + "px"
+      }     
       div.style.left = left;
       div.style.top = top; 
       if (item != null) {
@@ -171,8 +236,8 @@ export class Character {
       }
     }
 
-    hovertooltipdiv(e, item){
-      this.hoverdiv(e, 'tooltipdiv', item)
+    hovertooltipdiv(e, item, element=null){
+      this.hoverdiv(e, 'tooltipdiv', item, element)
     }
 
     addMessage (message) {
@@ -199,10 +264,16 @@ export class Character {
       return 0;
     }
 
+    marketTick (time) {
+      this.mk.tick(time)
+    }
+
+
     tick (time) {
       this.im.tick(time);
       this.am.tick(time);
       this.um.tick(time);
+      this.marketTick(time);
       this.tickRefresh();
     }
 
